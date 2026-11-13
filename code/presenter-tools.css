@@ -1,0 +1,19 @@
+/* Presenter tools (presenter-tools.js): Ctrl+L laser pointer, Ctrl+M 2× magnifier. */
+.pt-laser {
+  position: fixed; left: 0; top: 0; z-index: 2147483647; pointer-events: none; display: none;
+  width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 18%, #ff2a2a 34% 62%, #e00000 100%);
+  box-shadow: 0 0 6px 2px rgba(255, 30, 30, .95), 0 0 18px 8px rgba(255, 0, 0, .55), 0 0 36px 16px rgba(255, 0, 0, .25);
+  will-change: transform;
+}
+body.pt-laser-on .pt-laser { display: block; }
+body.pt-laser-on, body.pt-laser-on * { cursor: none !important; }
+
+.pt-lens {
+  position: fixed; left: 0; top: 0; z-index: 2147483646; pointer-events: none; display: none;
+  width: 560px; height: 340px; border-radius: 16px; overflow: hidden; box-sizing: border-box;
+  border: 4px solid #fff; box-shadow: 0 10px 34px rgba(15, 23, 42, .45), 0 0 0 1px rgba(15, 23, 42, .25);
+  background: #fafaf9; will-change: transform;
+}
+.pt-lens.on { display: block; }
+@media print { .pt-laser, .pt-lens { display: none !important; } }
