@@ -101,15 +101,18 @@
     document.body.appendChild(modal);
   });
   // Remote control with a mouse: left click = next, right click = previous.
+  // Touch: the left half of the screen goes back; the right half advances.
   // Clicks on real controls (buttons, sliders, heatmap, play overlay) keep their own action; a drag never advances.
   let down = null;
-  addEventListener("pointerdown", (e) => { down = { x: e.clientX, y: e.clientY }; }, true);
+  addEventListener("pointerdown", (e) => { down = { x: e.clientX, y: e.clientY, type: e.pointerType }; }, true);
   addEventListener("click", (e) => {
     if (isPresenter || e.button !== 0) return;
     if (e.target.closest("#vmodal")) return;
     const moved = down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6;
     if (moved || e.target.closest("button, input, select, a, .play, [data-clickable], #overview, #notes, #help")) return;
-    next();
+    const touch = (e.pointerType || down?.type) === "touch";
+    if (touch && e.clientX < innerWidth / 2) prev();
+    else next();
   });
   addEventListener("contextmenu", (e) => { if (isPresenter) return; e.preventDefault(); if (modal) closeModal(); else prev(); });
   // hide the cursor when the mouse is idle
