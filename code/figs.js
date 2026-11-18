@@ -572,7 +572,7 @@
       }
       x.fillStyle = "#fae8ff"; x.strokeStyle = "#86198f"; x.lineWidth = 3.5; x.beginPath(); x.arc(PX, this.y, 16, 0, 7); x.fill(); x.stroke();
       if (this.y >= PY) { x.fillStyle = "rgba(14,165,233,.22)"; x.beginPath(); x.arc(PX, PY, 30, 0, 7); x.fill(); }
-      x.fillStyle = "#86198f"; x.font = "700 17px 'Source Sans 3'"; x.textAlign = "center"; x.fillText("tumor cell", PX, PY + 52); x.textAlign = "left";
+      x.fillStyle = "#86198f"; x.font = "700 17px 'Source Sans 3'"; x.textAlign = "center"; x.fillText("tumor T cell", PX, PY + 52); x.textAlign = "left";
       // title of the panel
       x.fillStyle = "#334155"; x.font = "700 21px 'Source Sans 3'";
       x.fillText(d > 0.5 ? "The same light, split into its colors" : "The light of this cell, read by 64 detectors", X0, 34);
@@ -645,7 +645,7 @@
         // the phenotype read from the values (markers clearly above the unstained cell: ≥ 3×)
         const by = yb + 34; x.fillStyle = "#fdf4ff"; x.strokeStyle = "#e9d5ff"; x.lineWidth = 1.5; x.fillRect(6, by, W - 12, 62); x.strokeRect(6, by, W - 12, 62);
         x.fillStyle = "#0f172a"; x.font = "700 18px 'Source Sans 3'"; x.fillText("CD3⁺ CD8⁺ · CD69⁺ CD103⁻ · PD-1⁺ TIM-3⁺ CD39⁺", 18, by + 25);
-        x.fillStyle = "#86198f"; x.font = "800 19px 'Source Sans 3'"; x.fillText("→ exhausted, tissue-resident CD8 T cell", 18, by + 50);
+        x.fillStyle = "#86198f"; x.font = "800 19px 'Source Sans 3'"; x.fillText("→ phenotype: resident, exhausted CD8 T cell", 18, by + 50);
         x.globalAlpha = 1;
       }
     },
@@ -816,7 +816,7 @@
         const [ox, oy] = this.at(L, ...this.HID); x.globalAlpha = G;
         x.strokeStyle = "#7c3aed"; x.lineWidth = 3.5; x.strokeRect(ox - 1, oy - 1, s + 2, s + 2);
         x.strokeStyle = "#6d28d9"; x.lineWidth = 1.6; x.setLineDash([5, 4]); this.cross(x, L, ...this.HID); x.setLineDash([]);
-        const tx = ox + 8, ty = oy - 74, txt = `exhausted CD8 · ${nf(DM.counts.exh)}`, OUT = "filed as effector memory"; // in the empty cell above the plot
+        const tx = ox + 8, ty = oy - 74, txt = `exhausted CD8 · ${nf(DM.counts.exh)}`, OUT = "within effector memory"; // in the empty cell above the plot
         x.font = "600 16px 'Source Sans 3'"; const sw = x.measureText(OUT).width; x.font = "800 22px 'Source Sans 3'"; const tw = Math.max(x.measureText(txt).width, sw);
         x.fillStyle = "rgba(255,255,255,.95)"; x.fillRect(tx - 8, ty - 4, tw + 16, 58); x.strokeStyle = "#7c3aed"; x.lineWidth = 2; x.strokeRect(tx - 8, ty - 4, tw + 16, 58);
         x.fillStyle = "#6d28d9"; x.textAlign = "left"; x.fillText(txt, tx, ty + 20); x.font = "600 16px 'Source Sans 3'"; x.fillText(OUT, tx, ty + 44);
@@ -858,7 +858,7 @@
       this.t = n >= 1 ? 1 : 0; if (STATE.printing || !this.active) this.a = this.t;
       const KG = window.DECK_DIMS;
       if (KG) this.cap.innerHTML = n >= 1
-        ? "Between the two lie <b>decisions the file does not keep</b>: scale, gates and names."
+        ? "Interpretation also requires <b>the analytical context</b>: transformations, gates and annotations."
         : "The kidney study <b>as stored</b>: the 6,000 T cells of the previous slide. Only numbers.";
       else this.cap.innerHTML = n >= 1
         ? tr("Entre uno y otro hay <b>decisiones que el archivo no guarda</b>: quedan en otro programa o en la cabeza de quien analizó.", "Between the two lie <b>decisions the file does not keep</b>: they stay in another program, or in the analyst's head.")
@@ -925,9 +925,9 @@
     // left: what is on disk — one number per marker and cell, no gates, no names
     head("On disk: 12 FCS files", LX0 + S / 2, "#334155");
     x.globalAlpha = 1; x.drawImage(D.panel(Q, R, S, [], 0, WD), LX0, Y0, S, S); frame(LX0, "CD4", "CD8");
-    x.fillStyle = "#64748b"; x.font = "17px 'Source Sans 3'"; x.textAlign = "center"; x.fillText("one number per marker and cell · no gates, no names", LX0 + S / 2, Y0 + S + 72);
+    x.fillStyle = "#64748b"; x.font = "17px 'Source Sans 3'"; x.textAlign = "center"; x.fillText("marker measurements before population annotation", LX0 + S / 2, Y0 + S + 72);
     // middle: the decisions, one by one
-    x.globalAlpha = part(0, 5); x.font = "700 20px 'Source Sans 3'"; x.fillStyle = "#b91c1c"; x.textAlign = "center"; x.fillText("not in the file", mc, Y0 + 26);
+    x.globalAlpha = part(0, 5); x.font = "700 20px 'Source Sans 3'"; x.fillStyle = "#b91c1c"; x.textAlign = "center"; x.fillText("analysis context", mc, Y0 + 26);
     ["scale", "gates", "names"].forEach((t, k) => {
       const p = part(k + 1, 5), cy = Y0 + 48 + k * 66; x.globalAlpha = p;
       x.fillStyle = "#fef2f2"; x.strokeStyle = "#fca5a5"; x.lineWidth = 1.5; x.beginPath(); x.roundRect(mc - 64, cy + (1 - p) * 10, 128, 50, 12); x.fill(); x.stroke();
@@ -937,7 +937,7 @@
     x.strokeStyle = "#b91c1c"; x.lineWidth = 3; x.beginPath(); x.moveTo(mc - 60, ay); x.lineTo(mc - 60 + 106 * pr, ay); x.stroke();
     x.fillStyle = "#b91c1c"; x.beginPath(); x.moveTo(mc + 62, ay); x.lineTo(mc + 44, ay - 10); x.lineTo(mc + 44, ay + 10); x.closePath(); x.fill();
     // right: what the analysis saw — CD8 T cells only, exhausted cells named
-    head("What the analysis saw", RX0 + S / 2, "#1d4ed8");
+    head("After population annotation", RX0 + S / 2, "#1d4ed8");
     x.globalAlpha = 0.25 + 0.75 * pr; x.strokeStyle = "#cbd5e1"; x.lineWidth = 1.4; x.strokeRect(RX0, Y0, S, S);
     x.globalAlpha = pr;
     x.drawImage(D.panel(Q, R, S, [{ bit: 1, color: BLUE }, { bit: 2, color: PINK }], 0, WD), RX0, Y0, S, S); frame(RX0, "CD4", "CD8", false);

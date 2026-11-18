@@ -59,7 +59,7 @@
       const cv = this.bars, W = parseFloat(cv.style.width), H = parseFloat(cv.style.height), kk = cv.width / W;
       const x = cv.getContext("2d"); x.setTransform(kk, 0, 0, kk, 0, 0); if (!oy) x.clearRect(0, 0, W, H);
       x.font = `600 22px ${FONT}`; x.fillStyle = INK; x.textAlign = "left"; x.textBaseline = "alphabetic";
-      x.fillText("The path on the CD8 UMAP", 0, oy + 26);
+      x.fillText("Inferred trajectory on the CD8 UMAP", 0, oy + 26);
       x.font = `18px ${FONT}`; x.fillStyle = MUTED; x.textAlign = "left"; x.fillText("colour = pseudotime   early", 0, oy + 50);
       const gx = x.measureText("colour = pseudotime   early").width + 8, gw = 120;
       for (let i = 0; i < gw; i++) { x.fillStyle = rdylbu(i / (gw - 1)); x.fillRect(gx + i, oy + 38, 1.2, 14); }
@@ -115,8 +115,8 @@
         r.rel.forEach((v, b) => { if (v === null) return; x.fillStyle = viridis(v); x.fillRect(left + b * bw, y + 2, bw + 0.6, rowH - 4); });
       });
       x.font = `18px ${FONT}`; x.fillStyle = MUTED; x.textAlign = "left"; x.textBaseline = "alphabetic";
-      x.fillText("CD8 T cells: marker level along the path   low", left, top - 8);
-      { const lx0 = left + x.measureText("CD8 T cells: marker level along the path   low").width + 8; for (let i = 0; i < 90; i++) { x.fillStyle = viridis(i / 89); x.fillRect(lx0 + i, top - 20, 1.2, 12); } x.fillStyle = MUTED; x.fillText("high", lx0 + 98, top - 8); }
+      x.fillText("CD8 expression along inferred pseudotime   low", left, top - 8);
+      { const lx0 = left + x.measureText("CD8 expression along inferred pseudotime   low").width + 8; for (let i = 0; i < 90; i++) { x.fillStyle = viridis(i / 89); x.fillRect(lx0 + i, top - 20, 1.2, 12); } x.fillStyle = MUTED; x.fillText("high", lx0 + 98, top - 8); }
       const stripBot = top + P.strip.length * rowH, dTop = stripBot + 104, dBot = H - 72, dH = dBot - dTop;
       // cell types along the path (thesis clusters matched by expression profile), named at their mean position
       const U = window.DECK_RCC_UMAP;
@@ -176,7 +176,7 @@
         x.globalAlpha = 1;
       } else if (this.n === 0) {
         x.font = `20px ${FONT}`; x.fillStyle = "#94a3b8"; x.textAlign = "center";
-        x.fillText("where the cells sit along the path", left + plotW / 2, dTop + dH / 2);
+        x.fillText("cell distributions along inferred pseudotime", left + plotW / 2, dTop + dH / 2);
       }
       x.font = `600 20px ${FONT}`; x.fillStyle = INK; x.textAlign = "left";
       x.fillText("start · naive", left, dBot + 30);

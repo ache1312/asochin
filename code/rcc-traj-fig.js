@@ -123,7 +123,7 @@
       // the common root of the four paths: naive CD8 T cells (thesis cluster 14)
       { const L0 = D.lineages[0], q = this.mode === "3d" ? proj(L0.path3[0][0], L0.path3[0][1], L0.path3[0][2]) : proj(L0.path2[0][0], L0.path2[0][1]);
         x.beginPath(); x.arc(q[0], q[1], 10, 0, 2 * Math.PI); x.fillStyle = INK; x.fill(); x.lineWidth = 3; x.strokeStyle = "#fff"; x.stroke();
-        const r1 = "Root: naive CD8 T cells", r2 = (L0.clusters[0] && L0.clusters[0].name) ? "CCR7⁺ TCF-1⁺ · where all four paths start" : "";
+        const r1 = "Selected root: naive CD8 T cells", r2 = (L0.clusters[0] && L0.clusters[0].name) ? "CCR7⁺ TCF-1⁺ · four inferred trajectories" : "";
         x.textAlign = "left"; x.textBaseline = "middle"; x.lineJoin = "round"; x.lineWidth = 6; x.strokeStyle = "rgba(255,255,255,.95)";
         x.font = `700 20px ${FONT}`; const tx = Math.min(q[0] + 18, W - x.measureText(r1).width - 8);
         x.strokeText(r1, tx, q[1] - 10); x.fillStyle = INK; x.fillText(r1, tx, q[1] - 10);

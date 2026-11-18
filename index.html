@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FlowCV: An Open-Source Platform for High-Dimensional Flow Cytometry Analysis</title>
+<title>FlowCV: integrated analysis of high-dimensional flow cytometry · ASOCHIN 2026</title>
 <link rel="icon" href="assets/img/favicon.svg">
 <link rel="stylesheet" href="code/deck.css">
 <link rel="stylesheet" href="code/presenter-tools.css">
@@ -13,7 +13,7 @@
 <div id="viewport"><div id="stage">
 
 
-<section class="slide dark conference-title" id="s-title" data-time="25" data-title="Title">
+<section class="slide dark conference-title" id="s-title" data-time="25" data-title="FlowCV: integrated analysis of high-dimensional flow cytometry">
   <canvas id="title3d" width="3840" height="2160" style="width:1920px;height:1080px"></canvas>
   <header class="conference-event" aria-label="IX Annual Meeting ASOCHIN">
     <p class="conference-edition">IX Annual Meeting</p>
@@ -22,25 +22,25 @@
   </header>
   <div class="title-logos-white" aria-label="Universidad San Sebastián · Fundación Ciencia &amp; Vida"><img class="uss" src="assets/img/logo-uss-white.svg" alt="Universidad San Sebastián"><span class="sep"></span><span class="fcv" role="img" aria-label="Fundación Ciencia &amp; Vida"></span></div>
   <div class="title-wrap">
-    <h1 style="font-size:70px">FlowCV: An Open‑Source Platform for High‑Dimensional Flow&nbsp;Cytometry Analysis</h1>
+    <h1 style="font-size:70px">FlowCV: integrated analysis of high‑dimensional flow cytometry</h1>
   </div>
   <div class="who" id="presenter-line"></div>
   
 </section>
 
 
-<section class="slide act1" id="s-what" data-time="65" data-title="Flow cytometry: follow one cell">
-  <h1>Flow cytometry: <em>each cell becomes a point</em></h1>
-  <p class="say"><span data-at="0">Follow <b>one cell</b>: the laser reads two colors, CD4 and CD8, and the cell becomes <b>one point</b>.</span><span data-at="1">Thousands of cells later, <b>groups appear</b>.</span><span data-at="2"><b>Three groups.</b> A region drawn by hand, a <b>gate</b>, selects one: our cell is a CD4⁺ T cell.</span><span data-at="3">And with <b>7 colors</b>? Now there are <b>21 plots</b> to review, one pair of markers at a time.</span><span data-at="4">Conventional cytometry is <b>everywhere and simple to set up</b>, but overlapping colors <b>limit the panel</b>.</span></p>
+<section class="slide act1" id="s-what" data-time="65" data-title="Flow cytometry measures multiple markers in each cell">
+  <h1>Flow cytometry measures <em>multiple markers in each cell</em></h1>
+  <p class="say"><span data-at="0"><b>Each point represents one cell.</b> Here, two fluorescence measurements report CD4 and CD8.</span><span data-at="1">Across thousands of cells, <b>marker distributions distinguish populations</b>.</span><span data-at="2">A <b>gate</b> selects events within a defined region: here, the <b>CD4⁺ population</b>.</span><span data-at="3"><b>7 markers</b> yield <b>21 pairwise plots</b>. Each plot shows two dimensions of the same cells.</span><span data-at="4"><b>Spectral overlap</b> must be accounted for when interpreting fluorescence measurements.</span></p>
   <div class="body" style="gap:44px;margin-top:22px;align-items:flex-start">
     <div class="col" style="width:1040px">
       <div class="card" style="padding:0;overflow:hidden">
         <canvas id="cyto" width="2080" height="1140" style="width:1040px;height:570px;display:block"></canvas>
       </div>
       <div class="vs one" data-step="4">
-        <div class="vc"><div class="vh">Conventional flow cytometry<small>one detector per color</small></div>
-          <div class="pc"><div><div class="pro">In almost every core facility</div><div class="pro">Simpler setup for small panels</div></div>
-          <div><div class="con">Colors overlap: panels stop at ≈20–30</div><div class="con">Every added color means more overlap to compensate</div></div></div></div>
+        <div class="vc"><div class="vh">Conventional flow cytometry<small>fluorescence measured in defined detector bands</small></div>
+          <div class="pc"><div><div class="pro">Established acquisition workflows</div><div class="pro">Suitable for focused marker panels</div></div>
+          <div><div class="con">Spectral overlap constrains panel design</div><div class="con">Compensation accounts for spillover</div></div></div></div>
       </div>
     </div>
     <div class="col grow" style="gap:14px">
@@ -56,9 +56,9 @@
 </section>
 
 
-<section class="slide act1" id="s-spec" data-time="80" data-title="Spectral flow cytometry: one tumor cell">
-  <h1>Spectral flow cytometry: <em>one tumor cell, 64 detectors</em></h1>
-  <p class="say"><span data-at="0">A real cell from a <b>kidney tumor</b>: instead of one detector per color, <b>64 detectors</b> read its whole spectrum.</span><span data-at="1">Each antibody was measured alone first: <b>18 reference fingerprints</b>.</span><span data-at="2"><b>Unmixing</b> answers: an <b>exhausted, tissue-resident CD8 T cell</b>. We will see this population again in the kidney case.</span><span data-at="3">Spectral: <b>more colors per tube</b>, at the price of <b>stricter controls</b>. The result is still one value per marker.</span><span data-at="4">More markers, more files and more programs: <b>three problems</b>.</span></p>
+<section class="slide act1" id="s-spec" data-time="80" data-title="Spectral unmixing separates overlapping fluorescence signals">
+  <h1>Spectral unmixing separates <em>overlapping fluorescence signals</em></h1>
+  <p class="say"><span data-at="0">A <b>T cell from a renal tumor</b>: <b>64 detectors</b> sample its fluorescence spectrum.</span><span data-at="1"><b>Single-stain controls</b> provide <b>18 reference spectra</b> for this demonstration.</span><span data-at="2"><b>Unmixing estimates fluorophore contributions.</b> Marker expression then supports the cell’s phenotypic annotation.</span><span data-at="3"><b>Reference controls</b> support signal separation. The output is an estimated intensity for each fluorophore.</span><span data-at="4">The analysis must address <b>phenotypic complexity, data reuse and method integration</b>.</span></p>
   <div class="body" style="gap:36px;margin-top:22px;align-items:flex-start">
     <div class="col" style="width:1080px;gap:20px">
       <div class="card" style="padding:0;overflow:hidden">
@@ -66,15 +66,15 @@
       </div>
       <div class="what-bottom">
         <div class="vs one" data-step="3">
-          <div class="vc sp"><div class="vh">Spectral flow cytometry<small>up to 64 detectors read the whole spectrum</small></div>
-            <div class="pc"><div><div class="pro">40–50 colors in one tube</div><div class="pro">Autofluorescence measured as its own signal</div></div>
-            <div><div class="con">Each reference control must match the sample exactly</div><div class="con">More markers per cell: far more to analyze</div></div></div></div>
+          <div class="vc sp"><div class="vh">Spectral flow cytometry<small>64 detectors in the acquisition shown</small></div>
+            <div class="pc"><div><div class="pro">More markers measured in one tube</div><div class="pro">Autofluorescence included as a reference signal</div></div>
+            <div><div class="con">Reference controls must represent the measured signals</div><div class="con">More dimensions to interpret jointly</div></div></div></div>
         </div>
         <div class="problem" data-step="4">
-          <div class="ph">Three problems</div>
-          <div class="pi"><b>1</b><span>More markers per cell<small>gating covers a few plots</small></span></div>
-          <div class="pi"><b>2</b><span>More files per lab<small>stored without their analysis</small></span></div>
-          <div class="pi"><b>3</b><span>Fragmented tools<small>code, licenses or several programs</small></span></div>
+          <div class="ph">Three analytical challenges</div>
+          <div class="pi"><b>1</b><span>Phenotypic complexity<small>pairwise views show selected dimensions</small></span></div>
+          <div class="pi"><b>2</b><span>Data reuse<small>preserve the analytical context</small></span></div>
+          <div class="pi"><b>3</b><span>Method integration<small>connect inputs, decisions and outputs</small></span></div>
         </div>
       </div>
     </div>
@@ -90,17 +90,17 @@
 </section>
 
 
-<section class="slide act1" id="s-dims" data-time="75" data-title="Problem 1: more markers">
-  <h1>Manual gating inspects <em>few marker combinations</em></h1>
+<section class="slide act1" id="s-dims" data-time="75" data-title="Effector-memory gates contain distinct CD8 T-cell phenotypes">
+  <h1>Effector-memory gates contain <em>distinct CD8 T-cell phenotypes</em></h1>
   <div class="body" style="gap:52px;align-items:flex-start">
     <div class="card" style="padding:14px 14px 4px">
       <canvas id="dims-mat" width="1520" height="1520" style="width:760px;height:760px;display:block"></canvas>
     </div>
     <div class="col grow facts dims-facts">
-      <div class="fact" data-step="1" style="border-color:#1d4ed8"><b>A typical strategy looks at 2 of the 21</b><span>① CD4 × CD8: the <b class="in" style="color:#be185d">CD8 T cells</b>. ② CCR7 × CD45RO: it finds what it was looking for, naive and memory subsets.</span></div>
-      <div class="fact" data-step="2" style="border-color:#7c3aed"><b>What the tree hides: <span id="dims-n-ex" class="in">618</span> exhausted CD8 T cells, <span id="dims-p-ex" class="in">21%</span> of CD8</b><span>PD-1⁺ TIM-3⁺ CD39⁺. The panel measures them, but <span id="dims-ex-tem" class="in">599</span> (<span id="dims-p-tem" class="in">97%</span>) are filed as effector memory: these plots are never opened. Each gate decides what we keep looking at.</span></div>
-      <div class="fact" data-step="3"><b>Current panels reach up to 50 markers</b><div class="pbars" id="dims-bars"></div><span style="margin-top:2px">possible two-axis plots: n·(n−1)/2</span></div>
-      <div class="fact" data-step="4" style="border-color:var(--blue)"><b>What does get looked at depends on who draws the gates</b><span>Across labs, manual gating is one of the largest sources of variation.</span></div>
+      <div class="fact" data-step="1" style="border-color:#1d4ed8"><b>This illustrative strategy uses 2 of 21 plots</b><span>① CD4 × CD8: the <b class="in" style="color:#be185d">CD8 T cells</b>. ② CCR7 × CD45RO: it distinguishes naive and memory subsets.</span></div>
+      <div class="fact" data-step="2" style="border-color:#7c3aed"><b>A phenotype within these gates: <span id="dims-n-ex" class="in">618</span> exhausted CD8 T cells, <span id="dims-p-ex" class="in">21%</span> of CD8</b><span>PD-1⁺ TIM-3⁺ CD39⁺, the thesis definition. Of these, <span id="dims-ex-tem" class="in">599</span> (<span id="dims-p-tem" class="in">97%</span>) also fall in the effector-memory gate. This memory classification does not resolve their exhaustion-associated phenotype.</span></div>
+      <div class="fact" data-step="3"><b>With 50 markers: 1,225 pairwise views</b><div class="pbars" id="dims-bars"></div><span style="margin-top:2px">possible two-axis plots: n·(n−1)/2</span></div>
+      <div class="fact" data-step="4" style="border-color:var(--blue)"><b>Marker selection and gate boundaries affect annotation</b><span>Explicit gating criteria help analysts compare population definitions.</span></div>
     </div>
   </div>
   <div class="foot"><span class="src"></span><span class="num"></span></div>
@@ -108,8 +108,8 @@
 </section>
 
 
-<section class="slide act1" id="s-gold" data-time="55" data-title="Problem 2: more files">
-  <h1>FCS files are archived <em>without their analysis</em></h1>
+<section class="slide act1" id="s-gold" data-time="55" data-title="Reanalysis requires more than the FCS files">
+  <h1>Reanalysis requires <em>more than the FCS files</em></h1>
   <div class="body" style="gap:44px;align-items:flex-start">
     <div class="col" style="width:1180px;gap:16px">
       <div class="card" style="padding:18px 20px 8px">
@@ -130,8 +130,8 @@
           <div><div style="font-size:30px;font-weight:700" id="o-cells">0</div><div class="cap" style="font-size:19px">cells measured · 48 weeks/year</div></div>
         </div>
       </div>
-      <div class="fact" data-step="2"><b>FlowRepository stopped accepting new experiments</b><span>“We are continuously running out of space.” Notice from the ISAC repository, accessed 26 Oct 2026.</span></div>
-      <div class="fact" data-step="3" style="border-color:var(--blue)"><b>Reanalysis: the 10,000 Immunomes project</b><span>Studies already published in ImmPort, reanalyzed together: reference values for the human immune system by age, sex and ancestry, with no new experiment. <b class="in" style="color:var(--ink)">Reuse requires an analysis that can be rerun.</b></span></div>
+      <div class="fact" data-step="2"><b>Data accumulation also creates storage constraints</b><span>FlowRepository reported a temporary suspension of new experiments due to storage limits (notice accessed 26 Oct 2026).</span></div>
+      <div class="fact" data-step="3" style="border-color:var(--blue)"><b>Reanalysis: the 10,000 Immunomes project</b><span>Studies already published in ImmPort, reanalyzed together: reference values for the human immune system by age, sex and ancestry, with no new experiment. <b class="in" style="color:var(--ink)">Reuse requires documented methods and analytical context.</b></span></div>
     </div>
   </div>
   <div class="foot"><span class="src"></span><span class="num"></span></div>
@@ -139,26 +139,26 @@
 </section>
 
 
-<section class="slide act1" id="s-gap" data-time="70" data-title="Problem 3: tools in pieces">
-  <h1>Complete analysis requires code, <em>licenses or several programs</em></h1>
+<section class="slide act1" id="s-gap" data-time="70" data-title="From unmixing to figures: an analysis across multiple tools">
+  <h1>From unmixing to figures: <em>an analysis across multiple tools</em></h1>
   <div class="body" style="flex-direction:column;gap:16px;margin-top:30px">
     <div class="routes">
       <div class="rh"></div><div class="rh">Signal<small>compensation · unmixing</small></div><div class="rh">Gating</div><div class="rh">Exploration<small>UMAP · clustering</small></div><div class="rh">Statistics and plots</div>
-      <div class="rn">Commercial route<small>the kidney study in this talk</small></div>
+      <div class="rn">Original study<small>commercial software workflow</small></div>
       <div class="rb paid">SpectroFlo<small>Cytek · unmixing</small></div>
       <div class="rb paid">FlowJo<small>BD · gates</small></div>
       <div class="rb paid">OMIQ<small>Dotmatics · UMAP, FlowSOM</small></div>
-      <div class="rn" data-step="1">Open-source route<small>free, but piece by piece</small></div>
+      <div class="rn" data-step="1">Open-source example<small>one possible tool combination</small></div>
       <div class="rb gui" data-step="1">Honeychrome<small>or AutoSpectral · unmixing</small></div>
       <div class="rb code" data-step="1">flowCore · FlowKit<small>R / Python code · gates</small></div>
       <div class="rb code" data-step="1">CATALYST · FlowSOM<small>R code · UMAP, clusters</small></div>
-      <div class="rexit" data-step="2"><span class="k">Both routes end in another program</span><b>GraphPad Prism</b><b>Excel</b><b>matplotlib · ggplot2</b><small>export a table of counts → re-import → test and plot</small></div>
+      <div class="rexit" data-step="2"><span class="k">Statistics and figures in a separate tool</span><b>GraphPad Prism</b><b>Excel</b><b>matplotlib · ggplot2</b><small>export a table of counts → re-import → test and plot</small></div>
       <div class="rn fc" data-step="3">FlowCV<small>open · graphical</small></div>
       <div class="rb flowcv" data-step="3">one workflow: unmixing → gates → UMAP and FlowSOM → paired statistics → figures and PPTX</div>
     </div>
     <div class="route-legend">
       <span class="tag paid">paid license</span><span class="tag code">requires code</span><span class="tag gui">graphical interface</span>
-      <span class="tag hopk">⇢ each arrow: export, convert, re-import</span>
+      <span class="tag hopk">⇢ transfers require consistent data and metadata</span>
     </div>
   </div>
   <div class="foot"><span class="src"></span><span class="num"></span></div>
@@ -166,8 +166,8 @@
 </section>
 
 
-<section class="slide" id="s-rcc" data-time="45" data-title="Our study: kidney cancer" data-generated-illustrations>
-  <h1>T cells in clear cell renal carcinoma: <em>tumor versus blood</em></h1>
+<section class="slide" id="s-rcc" data-time="45" data-title="Paired blood–tumor profiling in clear cell renal carcinoma" data-generated-illustrations>
+  <h1>Paired blood–tumor profiling <em>in clear cell renal carcinoma</em></h1>
   
   <div class="body rcc-fig">
     <div class="card rcc-a">
@@ -198,17 +198,17 @@
 </section>
 
 
-<section class="slide" id="s-flowcv" data-time="70" data-title="Start in FlowCV">
-  <h1>Start in FlowCV: <em>upload, dataset, workspace</em></h1>
+<section class="slide" id="s-flowcv" data-time="70" data-title="Twelve FCS files form a paired study dataset">
+  <h1>Twelve FCS files form <em>a paired study dataset</em></h1>
   <div class="body" style="gap:40px;align-items:flex-start;margin-top:30px">
     <div class="col" style="width:1180px">
       <div class="vid" data-video data-chapters="0,15.9;15.9,41.8;41.8,56.6"><span class="badge tag blue">FlowCV · kidney study · real screens · typing sped up</span>
         <video src="assets/video/workflow-start-thesis-en.mp4" poster="assets/video/workflow-start-thesis-en-poster.jpg" muted playsinline preload="auto"></video><div class="play"></div></div>
     </div>
     <div class="col grow chaps tour-side">
-      <div class="chap"><b>1</b><div><h3>Upload</h3><p>12 FCS files: blood and tumor of 6 patients.</p></div></div>
-      <div class="chap"><b>2</b><div><h3>Dataset</h3><p>Name it. FlowCV reads the markers.</p></div></div>
-      <div class="chap"><b>3</b><div><h3>Workspace</h3><p>Create an analysis from the dataset.</p></div></div>
+      <div class="chap"><b>1</b><div><h3>Paired samples</h3><p>12 processed FCS files: blood and tumor from 6 patients.</p></div></div>
+      <div class="chap"><b>2</b><div><h3>Marker information</h3><p>Import the files and inspect their channels and markers.</p></div></div>
+      <div class="chap"><b>3</b><div><h3>Analysis workspace</h3><p>Link the dataset to a saved workflow.</p></div></div>
       <p class="tour-bridge" data-step="3">Next: build the analysis.</p>
       <i class="mk" data-step="1"></i><i class="mk" data-step="2"></i>
     </div>
@@ -218,8 +218,8 @@
 </section>
 
 
-<section class="slide" id="s-chain" data-time="40" data-title="A chain of decisions">
-  <h1>Build the analysis: <em>a chain of decisions</em></h1>
+<section class="slide" id="s-chain" data-time="40" data-title="An explicit workflow preserves methods and parameters">
+  <h1>An explicit workflow preserves <em>methods and parameters</em></h1>
   <div class="body" style="gap:40px;align-items:flex-start;margin-top:30px">
     <div class="tour">
       <div class="tour-screen"><span class="tag blue tour-badge">FlowCV · kidney study · real screens</span>
@@ -228,9 +228,9 @@
       <p class="tour-cap"></p>
     </div>
     <div class="col grow chaps tour-side">
-      <div class="chap"><b>1</b><div><h3>Add a module</h3><p>Search it, pick it: it connects after the selected step.</p></div></div>
-      <div class="chap"><b>2</b><div><h3>Each module is a decision</h3><p>Scaling, batch correction, map, groups: each with its own parameters.</p></div></div>
-      <div class="chap"><b>3</b><div><h3>The chain is the analysis</h3><p>Saved as one workflow: rerun, shared, changed one step at a time.</p></div></div>
+      <div class="chap"><b>1</b><div><h3>Specify methods</h3><p>Connect each method to the step that supplies its input.</p></div></div>
+      <div class="chap"><b>2</b><div><h3>Record parameters</h3><p>Transformations, batch correction, UMAP and clustering retain their settings.</p></div></div>
+      <div class="chap"><b>3</b><div><h3>Preserve the workflow</h3><p>Save the connected steps to review, share or rerun the analysis.</p></div></div>
       <i class="mk" data-step="1"></i><i class="mk" data-step="2"></i>
     </div>
   </div>
@@ -238,8 +238,8 @@
   
 </section>
 
-<section class="slide guided-gating" id="s-gate-app" data-rcc19-gating data-time="90" data-title="Define the population" data-guided-gating>
-  <h1>Define the population <em>and keep its denominator</em></h1>
+<section class="slide guided-gating" id="s-gate-app" data-rcc19-gating data-time="90" data-title="Population frequencies depend on the denominator" data-guided-gating>
+  <h1>Population frequencies depend <em>on the denominator</em></h1>
   <div class="body" style="gap:40px;align-items:flex-start;margin-top:30px">
     <div class="tour">
       <div class="tour-screen"><span class="tag blue tour-badge">FlowCV · patient 5 tumor · real screens</span>
@@ -249,9 +249,9 @@
     <div class="col grow chaps gating-story tour-side">
       <div class="gating-base"><span class="gb-k">Where 100% starts</span>
         <ol><li>Kidney dataset<b>12 files</b></li><li class="here">Patient 5 tumor = 100%<b>11,502 T cells</b></li></ol></div>
-      <div class="chap"><b>1</b><div><h3>Draw the parent</h3><p>CD4 × CD8: the CD8 T cells.</p><strong data-step="2">5,751 cells · 50% of input</strong></div></div>
-      <div class="chap"><b>2</b><div><h3>Draw the child inside it</h3><p>PD-1 × TIM-3: the PD-1⁺ TIM-3⁺ cells.</p><strong data-step="4">4,234 cells</strong></div></div>
-      <div class="chap"><b>3</b><div><h3>Read the denominator</h3><p>The same 4,234 cells are:</p><strong data-step="5">73.6% of the CD8 T cells<br>36.8% of the input</strong></div></div>
+      <div class="chap"><b>1</b><div><h3>Define the parent population</h3><p>CD4 × CD8: the CD8 T cells.</p><strong data-step="2">5,751 cells · 50% of input</strong></div></div>
+      <div class="chap"><b>2</b><div><h3>Select the nested phenotype</h3><p>PD-1 × TIM-3: the PD-1⁺ TIM-3⁺ cells.</p><strong data-step="4">4,234 cells</strong></div></div>
+      <div class="chap"><b>3</b><div><h3>Specify the denominator</h3><p>The same 4,234 cells are:</p><strong data-step="5">73.6% of the CD8 T cells<br>36.8% of the input</strong></div></div>
       <p class="gating-bridge" data-step="5">Next: all twelve samples at once.</p>
       <i class="mk" data-step="1"></i><i class="mk" data-step="3"></i>
     </div>
@@ -260,8 +260,8 @@
   
 </section>
 
-<section class="slide" id="s-rccsteps" data-time="80" data-title="Lab case: the four steps">
-  <h1>The kidney case, <em>step by step</em></h1>
+<section class="slide" id="s-rccsteps" data-time="80" data-title="From marker profiles to blood–tumor comparisons">
+  <h1>From marker profiles <em>to blood–tumor comparisons</em></h1>
   <div class="body" style="flex-direction:column;gap:8px;margin-top:22px">
     <canvas id="rs-cv" width="3424" height="1500" style="width:1712px;height:750px"></canvas>
     <div class="rs-leg" data-step="1"><span><i style="background:#93c5fd"></i>CD8 naive / central memory</span><span><i style="background:#0891b2"></i>CD8 effector</span><span><i style="background:#67e8f9"></i>CD8 effector memory</span><span><i style="background:#86efac"></i>CD8 resident</span><span><i style="background:#7c3aed"></i>CD8 resident, exhausted</span><span><i style="background:#fde68a"></i>CD4 naive / central memory</span><span><i style="background:#f97316"></i>CD4 cytotoxic</span><span><i style="background:#fdba74"></i>CD4 memory</span><span><i style="background:#a3a3a3"></i>CD4 resident</span><span><i style="background:#db2777"></i>CD4 regulatory (Treg)</span></div>
@@ -275,8 +275,8 @@
 
 
 
-<section class="slide guided-figure" id="s-figure" data-time="70" data-title="Build and edit the figure" data-guided-figure data-assistant-demo>
-  <h1>Build a figure <em>from the same analysis</em></h1>
+<section class="slide guided-figure" id="s-figure" data-time="70" data-title="Figure panels derive from saved analysis results" data-guided-figure data-assistant-demo>
+  <h1>Figure panels derive <em>from saved analysis results</em></h1>
   <div class="body linked-figure-body">
     <div class="linked-figure-wrap" id="fig-map" data-panel-bounds="[[4,0,602,480],[616,0,678,480],[4,492,602,250],[616,492,678,250]]">
       <img src="assets/img/linked-analysis-figure.svg" width="1300" height="748" alt="6,000 T cells of the kidney study in a square UMAP and a PD-1 versus TIM-3 plot, with population medians and proportions below." draggable="false">
@@ -286,10 +286,10 @@
     <div class="col grow linked-figure-story">
       <p class="figure-context">Each panel reads a saved result.</p>
       <ol class="figure-sources">
-        <li><span>A</span><div><h3>Cell map</h3><p>Saved UMAP coordinates</p></div></li>
-        <li><span>B</span><div><h3>Marker view</h3><p>PD-1 and TIM-3 measurements</p></div></li>
-        <li><span>C</span><div><h3>Marker expression</h3><p>Population medians</p></div></li>
-        <li><span>D</span><div><h3>Proportions</h3><p>Population counts and denominator</p></div></li>
+        <li><span>A</span><div><h3>UMAP coordinates</h3><p>Saved UMAP coordinates</p></div></li>
+        <li><span>B</span><div><h3>Single-cell expression</h3><p>PD-1 and TIM-3 measurements</p></div></li>
+        <li><span>C</span><div><h3>Phenotypic profiles</h3><p>Population medians</p></div></li>
+        <li><span>D</span><div><h3>Population frequencies</h3><p>Population counts and denominator</p></div></li>
       </ol>
       <p class="figure-reading" id="fig-src" aria-live="polite">Kidney study: the same 6,000 T cells as slide 4.</p>
       <div class="figure-ai-result" data-step="6" tabindex="-1">
@@ -341,8 +341,8 @@
 </section>
 
 
-<section class="slide" id="s-share" data-time="60" data-title="Share the analysis, export the results">
-  <h1>Built for a lab: <em>share the analysis, export the results</em></h1>
+<section class="slide" id="s-share" data-time="60" data-title="Shared workflows retain gates, parameters and results">
+  <h1>Shared workflows retain <em>gates, parameters and results</em></h1>
   <div class="body" style="gap:40px;align-items:flex-start;margin-top:30px">
     <div class="tour">
       <div class="tour-screen"><span class="tag blue tour-badge">FlowCV · real screens</span>
@@ -357,10 +357,10 @@
       <p class="tour-cap"></p>
     </div>
     <div class="col grow chaps tour-side">
-      <div class="chap"><b>1</b><div><h3>A notice at sign-in</h3><p>A colleague shared a dataset: the same FCS files, with view or edit access. No copies by e-mail.</p></div></div>
-      <div class="chap"><b>2</b><div><h3>The whole analysis travels</h3><p>Modules, parameters and gates arrive as one workflow, ready to continue or to rerun on new samples.</p></div></div>
-      <div class="chap"><b>3</b><div><h3>Export for the next step</h3><p>One package: figures as PowerPoint (16:9), SVG, PDF or PNG; data as CSV or FCS; tables for GraphPad Prism.</p></div></div>
-      <div class="sh-layouts" data-step="3"><h3>Figure layouts travel too</h3><p>Save them as templates on the Layouts page, share or export them, and keep several workspaces as tabs in Figure Studio.</p></div>
+      <div class="chap"><b>1</b><div><h3>Shared data</h3><p>Access the same FCS files with defined viewing or editing permissions.</p></div></div>
+      <div class="chap"><b>2</b><div><h3>Shared analytical context</h3><p>Review the same modules, parameters and gates; continue the analysis or reuse its settings.</p></div></div>
+      <div class="chap"><b>3</b><div><h3>Export results</h3><p>One package: figures as PowerPoint (16:9), SVG, PDF or PNG; data as CSV or FCS; tables for GraphPad Prism.</p></div></div>
+      <div class="sh-layouts" data-step="3"><h3>Reusable figure layouts</h3><p>Save them as templates on the Layouts page, share or export them, and keep several workspaces as tabs in Figure Studio.</p></div>
       <i class="mk" data-step="1"></i><i class="mk" data-step="2"></i>
     </div>
   </div>
@@ -369,8 +369,8 @@
 </section>
 
 
-<section class="slide" id="s-deps" data-time="60" data-title="Changing a decision">
-  <h1>Change one decision: <em>only what depends on it is recomputed</em></h1>
+<section class="slide" id="s-deps" data-time="60" data-title="Recomputing only the steps affected by a change">
+  <h1>Recomputing only the steps <em>affected by a change</em></h1>
   <div class="body" style="gap:40px;align-items:flex-start;margin-top:30px">
     <div class="tour">
       <div class="tour-screen"><span class="tag blue tour-badge">FlowCV · real screens</span>
@@ -387,9 +387,9 @@
       <p class="tour-cap"></p>
     </div>
     <div class="col grow chaps tour-side">
-      <div class="chap"><b>1</b><div><h3>Change a decision</h3><p>FlowSOM: 6 → 8 groups, in the module's own Studio.</p></div></div>
-      <div class="chap"><b>2</b><div><h3>Run only that module</h3><p>A partial run. UMAP is kept as it was; Review, Figure and Export wait for the new result.</p></div></div>
-      <div class="chap"><b>3</b><div><h3>The result</h3><p>FlowSOM now has 8 groups, computed in 6 s. Nothing upstream was computed again.</p></div></div>
+      <div class="chap"><b>1</b><div><h3>Change one parameter</h3><p>FlowSOM: 6 → 8 groups, in the module's own Studio.</p></div></div>
+      <div class="chap"><b>2</b><div><h3>Recompute the clustering</h3><p>A partial run. UMAP is kept as it was; Review, Figure and Export wait for the new result.</p></div></div>
+      <div class="chap"><b>3</b><div><h3>Preserve upstream results</h3><p>FlowSOM now has 8 groups, computed in 6 s. Nothing upstream was computed again.</p></div></div>
       <div class="dep-proof" data-step="3"><span class="k">Checked with the engine · same 6,000 cells</span>
         <ul><li>Scaling cofactor 150 → 5: old results are <b>refused</b> for reuse.</li>
         <li>Recomputing only the dependent steps gives the <b>same labels and the same exported file</b> as recomputing everything.</li>
@@ -411,8 +411,8 @@
 
 
 
-<section class="slide" id="s-rccres" data-time="90" data-title="Lab case: results">
-  <h1>Tumors differ: <em>progenitor vs exhausted CD8 T cells</em></h1>
+<section class="slide" id="s-rccres" data-time="90" data-title="CD8 T-cell phenotypes vary across renal tumors">
+  <h1>CD8 T-cell phenotypes vary <em>across renal tumors</em></h1>
   <div class="body" style="gap:40px;margin-top:22px;align-items:flex-start">
     <canvas id="rp-path" width="2440" height="1440" style="width:1220px;height:720px"></canvas>
     <div class="col grow" style="gap:16px;padding-top:24px">
@@ -421,21 +421,21 @@
       <i class="mk" data-step="1"></i><i class="mk" data-step="2"></i>
     </div>
   </div>
-  <p class="rcc-control"><span class="saved">Control</span> FlowCV reproduces the original analysis: blood vs tumor composition, same shift in 6 of 6 patients.</p>
+  <p class="rcc-control"><span class="saved">Control</span> The direction of blood–tumor differences agrees with the thesis in 6 of 6 patients; this is not full method equivalence.</p>
   <div class="foot"><span class="src"></span><span class="num"></span></div>
   
 </section>
 
 
-<section class="slide" id="s-traj-all" data-time="55" data-title="All four trajectories">
-  <h1>Four paths from <em>naive CD8 T cells</em></h1>
+<section class="slide" id="s-traj-all" data-time="55" data-title="Four inferred trajectories connect CD8 T-cell phenotypes">
+  <h1>Four inferred trajectories connect <em>CD8 T-cell phenotypes</em></h1>
   <div class="body" style="gap:40px;margin-top:22px;align-items:flex-start">
     <div class="col" style="gap:10px">
       <canvas class="tj-map" width="1840" height="1480" style="width:920px;height:740px"></canvas>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:20px"><div class="tj-leg"><span><i style="background:#0891b2"></i>Naive → effector</span><span><i style="background:#7c3aed"></i>Naive → resident, exhausted</span><span><i style="background:#16a34a"></i>Naive → resident memory (CD103⁺)</span><span><i style="background:#d97706"></i>Naive → central memory</span></div><div class="seg tj-mode"><button data-m="2d">2D</button><button data-m="3d" class="on">3D</button></div></div>
     </div>
     <div class="col grow" style="gap:8px">
-      <p class="tj-sub">Where <b style="color:#d62728">blood</b> and <b style="color:#1f6fb4">tumor</b> cells sit on each path (start → end)</p>
+      <p class="tj-sub"><b style="color:#d62728">Blood</b> and <b style="color:#1f6fb4">tumor</b> distributions along inferred pseudotime; naive CD8 T cells define the root.</p>
       <canvas class="tj-side" width="1260" height="1520" style="width:630px;height:760px"></canvas>
     </div>
   </div>
@@ -444,10 +444,10 @@
 </section>
 
 
-<section class="slide dark" id="s-ctend" data-time="25" data-title="The title-slide cells, with names">
+<section class="slide dark" id="s-ctend" data-time="25" data-title="A phenotypic map of blood and tumor CD8 T cells">
   <canvas id="ctend3d" width="3840" height="2160" style="width:1920px;height:1080px"></canvas>
   <ul class="ct-leg" data-clickable></ul>
-  <div class="ct-head"><h1>The cells from the title slide, <em>with names</em></h1><p>CD8 T cells, kidney cancer · 6 patients · blood and tumor</p></div>
+  <div class="ct-head"><h1>A phenotypic map of <em>blood and tumor CD8 T cells</em></h1><p>Marker-based annotation · 6 patients · blood and tumor · review ongoing</p></div>
   <div class="foot"><span class="src"></span><span class="num"></span></div>
   
 </section>
@@ -457,14 +457,14 @@
 
 
 
-<section class="slide" id="s-unito" data-time="45" data-title="Automated gating: learn from reviewed samples">
-  <h1>Automated gating: <em>learn from reviewed samples</em></h1>
+<section class="slide" id="s-unito" data-time="45" data-title="Automated gating: agreement and counting accuracy">
+  <h1>Automated gating: <em>agreement and counting accuracy</em></h1>
   <div class="ag">
     <div>
-      <div class="ag-k">In Gating Studio since 9 Nov 2026 · Random Forest</div>
+      <div class="ag-k">Supervised classification · Random Forest</div>
       <div class="ag-steps">
-        <div class="ag-st"><b>1</b><div><h3>Learn</h3><p>Choose reviewed samples and the manual populations the model should learn.</p></div></div>
-        <div class="ag-st"><b>2</b><div><h3>Check</h3><p>On samples kept apart: agreement (F1) and manual versus proposed counts, per file. You confirm the review.</p></div></div>
+        <div class="ag-st"><b>1</b><div><h3>Train</h3><p>Choose reviewed samples and the manual populations the model should learn.</p></div></div>
+        <div class="ag-st"><b>2</b><div><h3>Evaluate</h3><p>On samples kept apart: agreement (F1) and manual versus proposed counts, per file. You confirm the review.</p></div></div>
         <div class="ag-st"><b>3</b><div><h3>Apply</h3><p>The populations join the gating tree with their exact cells. Manual gates are kept.</p></div></div>
       </div>
     </div>
@@ -481,7 +481,7 @@
       <p class="ag-cap">F1 per population, pooling the events of the 6 test patients. 1 = identical to the manual labels.</p>
     </div>
     <div class="ag-limits" data-step="2">
-      <div><span class="tag warn">Limit</span><p>HSPC were over-counted by 47%. A good F1 does not guarantee the abundance: review the counts.</p></div>
+      <div><span class="tag warn">Limit</span><p>HSPC were over-counted by 47%. Classification agreement and population counts require separate evaluation.</p></div>
       <div><span class="tag">Not adopted</span><p>Two other methods failed the same validation (F1 0.25 and 0.14) and were not integrated.</p></div>
       <div><span class="tag blue">Pilot</span><p>UNITO, a neural network that learns each gate as an image: private pilot, no results yet.</p></div>
     </div>
@@ -490,11 +490,11 @@
   
 </section>
 
-<section class="slide" id="s-access" data-time="45" data-title="How to access FlowCV">
-  <h1>Free access with your <em>institutional email</em></h1>
+<section class="slide" id="s-access" data-time="45" data-title="FlowCV access and deployment options">
+  <h1>FlowCV access <em>and deployment options</em></h1>
   <div class="body acc3">
     <div class="acc3-main">
-      <div class="acc3-head"><span class="acc2-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="15"/><path d="M9 24h30M24 9c5 5 5 25 0 30M24 9c-5 5-5 25 0 30"/></svg></span><div><div class="ic">Online · free · ready today</div><h3>Start in three steps</h3></div><img class="acc3-logos" src="assets/img/logo-uss-fcv.png" alt="Universidad San Sebastián · Fundación Ciencia &amp; Vida"></div>
+      <div class="acc3-head"><span class="acc2-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="15"/><path d="M9 24h30M24 9c5 5 5 25 0 30M24 9c-5 5-5 25 0 30"/></svg></span><div><div class="ic">Web access · institutional account</div><h3>Access the web platform</h3></div><img class="acc3-logos" src="assets/img/logo-uss-fcv.png" alt="Universidad San Sebastián · Fundación Ciencia &amp; Vida"></div>
       <div class="acc3-mid">
         <ol class="acc3-steps">
           <li><b>1</b><div><h4>Open the link</h4><p class="url">apps.cienciavida.org/flowcv</p></div></li>
@@ -505,12 +505,12 @@
       </div>
       <div class="acc3-stats">
         <div><b>137</b><span>institutions enabled<br>in Chile</span></div>
-        <div><b>3,024</b><span>institutions in the catalog<br>from 21 countries</span></div>
+        <div><b>3,024</b><span>institutions in the catalog<br>21 countries · 9 Nov 2026</span></div>
       </div>
     </div>
     <div class="acc3-side">
-      <div class="acc3-opt" data-step="1"><span class="acc2-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="8" width="32" height="12" rx="3"/><rect x="8" y="26" width="32" height="12" rx="3"/><circle cx="15" cy="14" r="1.8"/><circle cx="15" cy="32" r="1.8"/><path d="M22 14h12M22 32h12"/></svg></span><div><div class="ic">Your own server</div><h3>Open-source code</h3><ul><li>Deploy it with Docker</li><li>Users and projects for your lab</li><li>Data stay in your institution</li></ul></div></div>
-      <div class="acc3-opt" data-step="2"><span class="acc2-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="10" y="10" width="28" height="19" rx="2.5"/><path d="M5 35h38l-3 4H8z"/></svg></span><div><div class="ic">Your computer</div><h3>Windows 11 installer</h3><ul><li>Python, R and database included</li><li>Works offline</li><li>Data never leave your computer</li></ul></div></div>
+      <div class="acc3-opt" data-step="1"><span class="acc2-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="8" width="32" height="12" rx="3"/><rect x="8" y="26" width="32" height="12" rx="3"/><circle cx="15" cy="14" r="1.8"/><circle cx="15" cy="32" r="1.8"/><path d="M22 14h12M22 32h12"/></svg></span><div><div class="ic">Your own server</div><h3>Self-hosted deployment</h3><ul><li>Deploy it with Docker</li><li>Users and projects for your lab</li><li>Data stay in your institution</li></ul></div></div>
+      <div class="acc3-opt" data-step="2"><span class="acc2-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="10" y="10" width="28" height="19" rx="2.5"/><path d="M5 35h38l-3 4H8z"/></svg></span><div><div class="ic">Your computer</div><h3>Windows 11 · in development</h3><ul><li>Python, R and database included</li><li>Works offline</li><li>Data never leave your computer</li></ul></div></div>
     </div>
   </div>
   <div class="foot"><span class="src"></span><span class="num"></span></div>
@@ -518,22 +518,22 @@
 </section>
 
 
-<section class="slide global-conclusions" id="s-concl" data-time="55" data-title="Conclusions">
+<section class="slide global-conclusions" id="s-concl" data-time="55" data-title="FlowCV connects data, analytical decisions and results">
   <p class="kicker">Conclusions</p>
-  <h1>From flow cytometry data <em>to interpretable results</em></h1>
+  <h1>FlowCV connects <em>data, analytical decisions and results</em></h1>
   <div class="body cc3">
     <div class="cc3-row">
-      <div class="cc3-card"><h2>The whole analysis in one place</h2><p>From the cytometer file to the figure: one workspace, without code.</p><div class="cc3-tags">unmixing · gating · clustering · figures</div></div>
-      <div class="cc3-card"><h2>Decisions you can trace</h2><p>Every step is saved with its parameters. Change one, and only what depends on it is recomputed.</p><div class="cc3-tags">reproducible · auditable · rerunnable</div></div>
-      <div class="cc3-card"><h2>Analyses you can share</h2><p>Data and workflows travel together, ready to continue or to run on new samples.</p><div class="cc3-tags">datasets · workflows · exports</div></div>
-      <div class="cc3-card"><h2>Open and accessible</h2><p>Open source, and free for research and teaching with an institutional email.</p><div class="cc3-tags">open code · no license · web</div></div>
+      <div class="cc3-card"><h2>Integrated methods</h2><p>Unmixing, gating, clustering and figures are connected in a graphical workflow.</p><div class="cc3-tags">unmixing · gating · clustering · figures</div></div>
+      <div class="cc3-card"><h2>Recorded analytical decisions</h2><p>Methods and parameters are saved; dependencies identify the results affected by a change.</p><div class="cc3-tags">methods · parameters · dependencies</div></div>
+      <div class="cc3-card"><h2>Shared analytical context</h2><p>Shared datasets and workflows retain the context needed to review or extend an analysis.</p><div class="cc3-tags">datasets · workflows · exports</div></div>
+      <div class="cc3-card"><h2>Research and teaching access</h2><p>Institutional web access supports research and teaching; code and installer release are planned.</p><div class="cc3-tags">institutional access · web platform</div></div>
     </div>
     <div class="cc3-next" data-step="1">
-      <div class="ic">Looking ahead</div>
+      <div class="ic">Validation and release priorities</div>
       <div class="cc3-road">
-        <div><h3>Validate</h3><p>More datasets and laboratories; cell-by-cell comparison with OMIQ.</p></div>
-        <div><h3>Kidney study</h3><p>Populations reviewed by the study team; link CD8 states to clinical data.</p></div>
-        <div><h3>Automate</h3><p>Automated gating checked on our own panels.</p></div>
+        <div><h3>Method comparison</h3><p>More datasets and laboratories; cell-by-cell comparison with OMIQ.</p></div>
+        <div><h3>Biological review</h3><p>Populations reviewed by the study team; link CD8 states to clinical data.</p></div>
+        <div><h3>Panel-specific validation</h3><p>Automated gating checked on our own panels.</p></div>
         <div><h3>Release</h3><p>Public repository and Windows installer.</p></div>
       </div>
     </div>
@@ -543,8 +543,8 @@
   
 </section>
 
-<section class="slide" id="s-branches" data-time="0" data-title="Backup · Branches">
-  <h1>Backup · <em>branches compare decisions</em></h1>
+<section class="slide" id="s-branches" data-time="0" data-title="Comparing alternative analyses from the same input">
+  <h1>Comparing alternative analyses <em>from the same input</em></h1>
   <div class="body" style="gap:40px;align-items:flex-start;margin-top:30px">
     <div class="tour">
       <div class="tour-screen br-still"><span class="tag blue tour-badge">FlowCV · kidney study · real screen</span><img src="assets/app/chain/br-final-canvas.jpg" alt="FlowCV workflow with one scaled input and three batch-correction branches (MNN, CyCombine, Harmony), each followed by UMAP and FlowSOM"></div>
