@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FlowCV: integrated analysis of high-dimensional flow cytometry · ASOCHIN 2026</title>
 <link rel="icon" href="assets/img/favicon.svg">
-<link rel="stylesheet" href="code/deck.css?v=20261120">
+<link rel="stylesheet" href="code/deck.css?v=20261120-cd8">
 <link rel="stylesheet" href="code/presenter-tools.css">
 </head>
 <body class="deck-spectral">
@@ -14,7 +14,7 @@
 
 
 <section class="slide dark conference-title" id="s-title" data-time="25" data-title="FlowCV: integrated analysis of high-dimensional flow cytometry">
-  <canvas id="title3d" width="3840" height="2160" style="width:1920px;height:1080px"></canvas>
+  <canvas id="title3d" width="3840" height="2160" style="width:1920px;height:1080px" role="img" aria-label="Rotating CD8 T-cell UMAP colored by phenotype"></canvas>
   <header class="conference-event" aria-label="IX Annual Meeting ASOCHIN">
     <p class="conference-edition">IX Annual Meeting</p>
     <p class="conference-name">ASOCHIN</p>
@@ -440,7 +440,9 @@
   <h1>Four inferred trajectories connect <em>CD8 T-cell phenotypes</em></h1>
   <div class="body" style="gap:40px;margin-top:22px;align-items:flex-start">
     <div class="col" style="gap:10px">
-      <canvas class="tj-map" width="1840" height="1480" style="width:920px;height:740px"></canvas>
+      <div class="tj-map-panel">
+        <canvas class="tj-map" width="1840" height="1480" style="width:920px;height:740px" role="img" aria-label="CD8 T-cell UMAP with four inferred trajectories" aria-describedby="tj-map-sample"></canvas>
+      </div>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:20px"><div class="tj-leg"><span><i style="background:#0891b2"></i>Naive → effector</span><span><i style="background:#7c3aed"></i>Naive → resident, exhausted</span><span><i style="background:#16a34a"></i>Naive → resident memory (CD103⁺)</span><span><i style="background:#d97706"></i>Naive → central memory</span></div><div class="seg tj-mode"><button data-m="2d">2D</button><button data-m="3d" class="on">3D</button></div></div>
     </div>
     <div class="col grow" style="gap:8px">
@@ -448,7 +450,7 @@
       <canvas class="tj-side" width="1260" height="1520" style="width:630px;height:760px"></canvas>
     </div>
   </div>
-  <div class="foot"><span class="src"></span><span class="num"></span></div>
+  <div class="foot"><span class="src tj-map-sample" id="tj-map-sample"></span><span class="num"></span></div>
   
 </section>
 
@@ -605,7 +607,9 @@ window.PRESENTER = {
 <script src="data/spectral-rcc.js"></script>
 <script src="data/rcc-dims.js"></script>
 <script src="code/figure-assistant-demo.js"></script>
-<script src="code/figs.js"></script>
+<script src="data/rcc-cd8-umap-detail.js"></script>
+<script src="code/point-cloud.js"></script>
+<script src="code/figs.js?v=20261120-cd8"></script>
 <script src="data/rcc-patients.js"></script>
 <script src="data/rcc-cd8-umap.js"></script>
 <script src="data/rcc-cd8-umap-12k.js"></script>
@@ -614,7 +618,7 @@ window.PRESENTER = {
 <script src="data/rcc-steps.js"></script>
 <script src="code/rcc-steps-fig.js"></script>
 <script src="data/rcc-trajectories.js"></script>
-<script src="code/rcc-traj-fig.js"></script>
+<script src="code/rcc-traj-fig.js?v=20261120-cd8"></script>
 <script src="code/apptour.js?v=20261120-2"></script>
 <script src="code/deck.js"></script>
 <script src="code/presenter-tools.js"></script>

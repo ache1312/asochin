@@ -99,7 +99,9 @@
     const pts = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) { pts[3 * i] = (P[3 * i] - cx) / r; pts[3 * i + 1] = (P[3 * i + 1] - cy) / r; pts[3 * i + 2] = (P[3 * i + 2] - cz) / r; }
     const st = { yaw: o.yaw ?? 0.6, pitch: o.pitch ?? -0.35, color: o.color, highlight: -1, active: false, drag: null, auto: o.auto ?? 0.0012 };
-    const proj = new Float32Array(n * 3), order = new Uint32Array(n).map((_, i) => i);
+    const pointLayer = o.palette && window.deckPointCloud?.(canvas, labOf, o.palette, { radius: o.radius, alpha: o.alpha, depthStyle: true });
+    const proj = new Float32Array(n * 3);
+    const order = (pointLayer ? Uint16Array : Uint32Array).from({ length: n }, (_, i) => i);
     function draw() {
       const cyw = Math.cos(st.yaw), syw = Math.sin(st.yaw), cp = Math.cos(st.pitch), sp = Math.sin(st.pitch);
       for (let i = 0; i < n; i++) {
@@ -109,6 +111,7 @@
       }
       const key = st.color.sortKey;
       order.sort(key ? (i, j) => key(i) - key(j) || proj[3 * i + 2] - proj[3 * j + 2] : (i, j) => proj[3 * i + 2] - proj[3 * j + 2]);
+      if (pointLayer && pointLayer(proj, order)) return;
       x.clearRect(0, 0, W, H); if (o.bg) { x.fillStyle = o.bg; x.fillRect(0, 0, W, H); }
       for (let k = 0; k < n; k++) {
         const i = order[k], z = proj[3 * i + 2], dim = st.highlight >= 0 && labOf[i] !== st.highlight;
@@ -141,12 +144,11 @@
   }
 
   // CD8 T cells of the kidney case (rcc-cd8-umap.js): 3D UMAP coloured by cell type (thesis clusters matched by profile).
-  // Same cells on the title slide (no names) and on s-ctend after the kidney case (with names).
+  // The title uses a denser display sample from the same embedding as the labeled map.
   const CT_COL = ["#e2e8f0", "#f59e0b", "#fde047", "#f472b6", "#22d3ee", "#3b82f6", "#4ade80", "#a3e635", "#a78bfa", "#e879f9"];
   const CT_SHORT = ["Naive", "Central memory", "Circulating memory (TCF-1⁺)", "Progenitor (TCF-1⁺)", "Effector", "Effector memory",
     "Resident memory (CD103⁺)", "Resident memory (CD103⁻)", "Resident, exhausted", "Exhausted, dividing (Ki67⁺)"];
-  function cd8Map(canvas, o) {
-    const U = window.DECK_RCC_UMAP_MAP || window.DECK_RCC_UMAP; // 12,000 cells (1,000 per file) since 12 Nov 2026; other slides keep the 6,000-cell sample
+  function cd8Map(canvas, o, U = window.DECK_RCC_UMAP_MAP || window.DECK_RCC_UMAP) {
     if (!U || !U.ct) return make3D(canvas, Object.assign({ color: byPop }, o));
     const ct = Uint8Array.from(U.ct);
     return make3D(canvas, Object.assign({ P: Float32Array.from(U.p3), n: ct.length, lab: ct, color: { fn: (i) => CT_COL[ct[i]] } }, o));
@@ -158,7 +160,7 @@
   FIGS["s-title"] = {
     init(el) {
       el.querySelector("#presenter-line").innerHTML = (window.PRESENTER || {}).line || "";
-      this.v = cd8Map(el.querySelector("#title3d"), { cx: 1560, cy: 560, scale: 380, radius: 2.0, alpha: 0.9, auto: 0.0016, yaw: 0.9, pitch: -0.3 });
+      this.v = cd8Map(el.querySelector("#title3d"), { cx: 1560, cy: 560, scale: 380, radius: 1.45, alpha: 0.86, auto: 0.0016, yaw: 0.9, pitch: -0.3, palette: CT_COL }, window.DECK_RCC_UMAP_DETAIL);
     },
     enter() { this.v.start(); }, leave() { this.v.stop(); },
   };

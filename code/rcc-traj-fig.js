@@ -13,16 +13,22 @@
   function ctx(c) { const W = parseFloat(c.style.width), H = parseFloat(c.style.height), k = c.width / W; const x = c.getContext("2d"); x.setTransform(k, 0, 0, k, 0, 0); x.clearRect(0, 0, W, H); return [x, W, H]; }
   function smooth(x, pts) { x.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], mx = (x0 + x1) / 2; x.bezierCurveTo(mx, y0, mx, y1, x1, y1); } }
   // shared 2D/3D map helper
-  function mapper(box, mode, yaw, pitch) {
-    const C = D.cells;
+  function mapper(box, mode, yaw, pitch, C = D.cells) {
     if (mode === "3d") {
       const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
       const s = Math.min(box.w, box.h) / 1.6, cx0 = box.x + box.w / 2, cy0 = box.y + box.h / 2;
-      return (a, b, c) => { const xr = a * cy + c * sy, zr = -a * sy + c * cy; return [cx0 + xr * s, cy0 - (b * cp - zr * sp) * s, b * sp + zr * cp]; };
+      return (a, b, c, out = [], i = 0) => {
+        const xr = a * cy + c * sy, zr = -a * sy + c * cy;
+        out[i] = cx0 + xr * s; out[i + 1] = cy0 - (b * cp - zr * sp) * s; out[i + 2] = b * sp + zr * cp;
+        return out;
+      };
     }
     const sx0 = C.xr[1] - C.xr[0], sy0 = C.yr[1] - C.yr[0], s = Math.min(box.w / sx0, box.h / sy0);
     const ox = box.x + (box.w - s * sx0) / 2, oy = box.y + (box.h - s * sy0) / 2;
-    return (a, b) => [ox + (a - C.xr[0]) * s, oy + s * sy0 - (b - C.yr[0]) * s, 0];
+    return (a, b, c, out = [], i = 0) => {
+      out[i] = ox + (a - C.xr[0]) * s; out[i + 1] = oy + s * sy0 - (b - C.yr[0]) * s; out[i + 2] = 0;
+      return out;
+    };
   }
   function drawCells(x, proj, mode, colorOf, alphaOf) {
     const C = D.cells, N = C.x.length, pts = new Array(N);
@@ -31,6 +37,29 @@
     if (mode === "3d") order.sort((a, b) => pts[a][2] - pts[b][2]);
     for (const i of order) { x.globalAlpha = alphaOf(i); x.fillStyle = colorOf(i); x.fillRect(pts[i][0] - 1.3, pts[i][1] - 1.3, 2.6, 2.6); }
     x.globalAlpha = 1;
+  }
+  function overviewScatter(canvas, cells) {
+    const n = cells.dom.length, palette = LCOL.map((color) => mix(color, 0.7));
+    const xy = Float32Array.from(cells.xy, (v) => v / 1000), xyz = Float32Array.from(cells.p3, (v) => v / 1000);
+    const pointLayer = window.deckPointCloud?.(canvas, cells.dom, LCOL, { radius: 0.95, alpha: 0.68, colorMix: 0.7 });
+    const pts = new Float32Array(n * 3);
+    const order = (pointLayer ? Uint16Array : Uint32Array).from({ length: n }, (_, i) => i);
+    return (x, proj, mode) => {
+      const is3d = mode === "3d";
+      for (let i = 0, p = 0, q = 0; i < n; i++, p += 3, q += 2) {
+        if (is3d) proj(xyz[p], xyz[p + 1], xyz[p + 2], pts, p);
+        else proj(xy[q], xy[q + 1], 0, pts, p);
+      }
+      if (is3d) order.sort((a, b) => pts[3 * a + 2] - pts[3 * b + 2]);
+      if (pointLayer && pointLayer(pts, is3d ? order : null)) return;
+      x.globalAlpha = 0.68;
+      for (let k = 0; k < n; k++) {
+        const i = is3d ? order[k] : k, p = 3 * i;
+        x.fillStyle = palette[cells.dom[i]];
+        x.fillRect(pts[p] - 0.95, pts[p + 1] - 0.95, 1.9, 1.9);
+      }
+      x.globalAlpha = 1;
+    };
   }
   function drawPath(x, proj, mode, L, col) {
     const path = mode === "3d" ? L.path3.map((q) => proj(q[0], q[1], q[2])) : L.path2.map((q) => proj(q[0], q[1]));
@@ -110,12 +139,19 @@
 
   // all four together
   FIGS["s-traj-all"] = {
-    init(el) { this.map = el.querySelector(".tj-map"); this.side = el.querySelector(".tj-side"); interactive(this, el, ".tj-map"); this.mode = "3d"; this.speed = 0.0025; },
-    enter() { this.draw(); if (this.mode === "3d") this.spin(); },
+    init(el) {
+      this.map = el.querySelector(".tj-map"); this.side = el.querySelector(".tj-side");
+      this.cells = window.DECK_RCC_UMAP_DETAIL;
+      this.drawPoints = overviewScatter(this.map, this.cells);
+      const count = this.cells.dom.length.toLocaleString("en-US");
+      el.querySelector(".tj-map-sample").textContent = `${count} plotted CD8 cells · enriched for naive, central memory and resident memory`;
+      interactive(this, el, ".tj-map"); this.mode = "3d"; this.speed = 0.0025;
+    },
+    enter() { this.drawSide(); this.draw(); if (this.mode === "3d") this.spin(); },
     draw() {
-      let [x, W, H] = ctx(this.map);
-      const box = { x: 30, y: 90, w: W - 70, h: H - 110 }, proj = mapper(box, this.mode, this.yaw, this.pitch), C = D.cells;
-      drawCells(x, proj, this.mode, (i) => mix(LCOL[C.dom[i]], 0.55), () => 0.8);
+      const [x, W, H] = ctx(this.map);
+      const box = { x: 30, y: 90, w: W - 70, h: H - 110 }, proj = mapper(box, this.mode, this.yaw, this.pitch, this.cells);
+      this.drawPoints(x, proj, this.mode);
       D.lineages.forEach((L, j) => { const end = drawPath(x, proj, this.mode, L, LCOL[j]);
         x.font = `700 18px ${FONT}`; x.textAlign = "left"; x.textBaseline = "middle"; x.lineWidth = 5; x.strokeStyle = "rgba(255,255,255,.95)";
         const lab = SHORT[L.end_thesis] || L.end_name; const tw = x.measureText(lab).width, lx = Math.min(end[0] + 12, W - tw - 6);
@@ -128,8 +164,9 @@
         x.font = `700 20px ${FONT}`; const tx = Math.min(q[0] + 18, W - x.measureText(r1).width - 8);
         x.strokeText(r1, tx, q[1] - 10); x.fillStyle = INK; x.fillText(r1, tx, q[1] - 10);
         x.font = `16px ${FONT}`; x.strokeText(r2, tx, q[1] + 12); x.fillStyle = MUTED; x.fillText(r2, tx, q[1] + 12); x.textBaseline = "alphabetic"; }
-      // side: one row per trajectory with blood vs tumor along its own path
-      [x, W, H] = ctx(this.side);
+    },
+    drawSide() {
+      const [x, W, H] = ctx(this.side);
       const rowH = (H - 10) / 4;
       D.lineages.forEach((L, j) => {
         const y0 = 6 + j * rowH;
