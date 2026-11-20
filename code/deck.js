@@ -47,7 +47,17 @@
     if (!opts.remote) chan?.postMessage({ type: "state", cur, step });
     if (isPresenter) renderPresenter();
   }
-  function next() { if (step < maxStep[cur]) go(cur, step + 1); else if (cur < slides.length - 1) go(cur + 1, 0); }
+  function nextSlideIndex() {
+    const limit = cur < mainCount ? mainCount : slides.length;
+    return cur + 1 < limit ? cur + 1 : null;
+  }
+  function next() {
+    if (step < maxStep[cur]) go(cur, step + 1);
+    else {
+      const index = nextSlideIndex();
+      if (index !== null) go(index, 0);
+    }
+  }
   function prev() { if (step > 0) go(cur, step - 1); else if (cur > 0) go(cur - 1, maxStep[cur - 1]); }
 
   // videos
@@ -151,7 +161,7 @@
         <div class="txt">${esc(notesOf(cur))}</div>
       </div><div>
         <div class="ctl"><button id="pp">◀</button><button id="pn">▶</button><button id="pt">${t0 ? tr("Reiniciar reloj", "Restart clock") : tr("Iniciar", "Start")}</button></div>
-        <div class="next">${tr("Siguiente", "Next")}: ${cur + 1 < slides.length ? slides[cur + 1].dataset.title : "—"}</div>
+        <div class="next">${tr("Siguiente", "Next")}: ${slides[nextSlideIndex()]?.dataset.title || "—"}</div>
         <div class="next" style="margin-top:30px">${tr("Plan completo", "Full plan")}: ${slides.filter((x) => +x.dataset.time).map((x, i) => `${i + 1}. ${x.dataset.title} (${fmt(+x.dataset.time)})`).join("<br>")}</div>
       </div>`;
     p.querySelector("#pp").onclick = () => send("prev"); p.querySelector("#pn").onclick = () => send("next");

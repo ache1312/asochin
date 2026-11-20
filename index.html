@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FlowCV: integrated analysis of high-dimensional flow cytometry · ASOCHIN 2026</title>
 <link rel="icon" href="assets/img/favicon.svg">
-<link rel="stylesheet" href="code/deck.css?v=20261120-cd8-figure">
+<link rel="stylesheet" href="code/deck.css?v=20261120-polish">
 <link rel="stylesheet" href="code/presenter-tools.css">
 </head>
 <body class="deck-spectral">
@@ -224,7 +224,7 @@
   <div class="body" style="gap:40px;align-items:flex-start;margin-top:30px">
     <div class="tour">
       <div class="tour-screen"><span class="tag blue tour-badge">FlowCV · kidney study · real screens</span>
-        <div class="tour-world"><img class="tour-img on" data-img="chain/c00-start.jpg" src="assets/app/chain/c00-start.jpg" alt=""><img class="tour-img" alt=""><i class="tour-cur"></i></div>
+        <div class="tour-world"><img class="tour-img on" data-img="chain/c00-start.jpg" src="assets/app/chain/c00-start.jpg" alt=""><img class="tour-img" alt=""><div class="tour-entry" hidden aria-hidden="true"></div><i class="tour-cur"></i></div>
       </div>
       <p class="tour-cap"></p>
     </div>
@@ -287,8 +287,8 @@
 <section class="slide guided-figure" id="s-figure" data-time="70" data-title="From CD8 analysis to a publication figure" data-guided-figure data-assistant-demo>
   <h1>From CD8 analysis <em>to a publication figure</em></h1>
   <div class="body linked-figure-body">
-    <div class="linked-figure-wrap" id="fig-map" data-panel-bounds="[[4,4,623,368],[643,4,653,368],[4,380,623,329],[643,380,653,329]]">
-      <img class="linked-figure-image" src="assets/img/cd8-linked-figure.svg" width="1300" height="748" alt="Four views of CD8 T cells from paired blood and tumor. A, UMAP by tissue. B, PD-1 by TIM-3 with a common arcsinh scale. C, phenotype medians. D, stacked bars comparing CD8 phenotypes in blood and tumor." draggable="false">
+    <div class="linked-figure-wrap" id="fig-map" data-panel-bounds="[[4,4,623,397],[643,4,653,397],[4,408,623,315],[643,408,653,315]]">
+      <img class="linked-figure-image" src="assets/img/cd8-linked-figure.svg?v=20261120-polish" width="1300" height="748" alt="Four views of CD8 T cells from paired blood and tumor. A, UMAP by tissue. B, PD-1 by TIM-3 with a common arcsinh display with decade labels. C, phenotype medians. D, stacked bars comparing CD8 phenotypes in blood and tumor." draggable="false">
       <canvas class="figure-page-final" width="3250" height="1870" role="img" aria-label="Figure Studio page with 21 scatterplots for the seven CD8 markers, after hiding plot titles and enlarging points and axis titles."></canvas>
       <div class="figure-focus" aria-hidden="true"></div>
     </div>
@@ -296,7 +296,7 @@
       <p class="figure-context">Combine saved results on one page for an article.</p>
       <ol class="figure-sources">
         <li><span>A</span><div><h3>CD8 cell map</h3><p>Shared UMAP coordinates and phenotype colors.</p></div></li>
-        <li><span>B</span><div><h3>PD-1 × TIM-3</h3><p>One cell per point, with matched numeric axes.</p></div></li>
+        <li><span>B</span><div><h3>PD-1 × TIM-3</h3><p>One cell per point, with matched scientific axes.</p></div></li>
         <li><span>C</span><div><h3>Marker profiles</h3><p>Median marker intensity by CD8 phenotype.</p></div></li>
         <li><span>D</span><div><h3>CD8 composition</h3><p>Stacked percentages for blood and tumor.</p></div></li>
       </ol>
@@ -320,7 +320,7 @@
       <div class="figure-ai-workspace">
         <div class="figure-ai-page">
           <div class="figure-ai-toolbar"><span data-ai-field="pageTitle">Page 1 · CD8 publication figure</span><span class="figure-ai-selection"><span class="figure-ai-zoomlabel" data-ai-field="zoom">Zoom 100%</span>Selected: <strong data-ai-field="workspaceTarget">A · Cell map</strong></span></div>
-          <div class="figure-ai-canvas"><div class="figure-ai-zoom"><img class="figure-ai-preview" src="assets/img/cd8-linked-figure.svg" width="1300" height="748" alt="Figure preview, updated after each scripted assistant edit."><canvas class="figure-ai-page-before" width="3250" height="1870" aria-hidden="true"></canvas><canvas class="figure-ai-page-after" width="3250" height="1870" aria-hidden="true"></canvas></div></div>
+          <div class="figure-ai-canvas"><div class="figure-ai-zoom"><img class="figure-ai-preview" src="assets/img/cd8-linked-figure.svg?v=20261120-polish" width="1300" height="748" alt="Figure preview, updated after each scripted assistant edit."><canvas class="figure-ai-page-before" width="3250" height="1870" aria-hidden="true"></canvas><canvas class="figure-ai-page-after" width="3250" height="1870" aria-hidden="true"></canvas></div></div>
           <div class="figure-ai-page-status"><span data-ai-field="applied">0 of 4 changes applied</span><span data-ai-field="pageCount">6,000 plotted CD8 cells · 12 FCS files</span></div>
         </div>
         <aside class="figure-ai-assistant" aria-label="Scripted Figure assistant">
@@ -486,42 +486,6 @@
 </section>
 
 
-<section class="slide acknowledgements" id="s-ack" data-time="20" data-title="Acknowledgements">
-  <h1>Acknowledgements</h1>
-  <p class="ack-patients">We thank the patients who made this study possible by contributing blood and tumor samples.</p>
-  <div class="ack-team">
-    <h2>With thanks to the Immunoncology Laboratory</h2>
-    <ul class="ack-portraits" aria-label="Coauthors">
-      <li><img src="assets/img/ack/catalina-bustamante.webp" alt=""><span>Catalina Bustamante</span></li>
-      <li><img src="assets/img/ack/andres-hernandez.webp" alt=""><span>Andrés Hernández Oliveras</span></li>
-      <li><img src="assets/img/ack/juan-pablo-vega.webp" alt=""><span>Juan Pablo Vega</span></li>
-      <li><img src="assets/img/ack/daniela-malave.webp" alt=""><span>Daniela Malavé</span></li>
-      <li><img src="assets/img/ack/felipe-ardiles.webp" alt=""><span>Felipe Ardiles</span></li>
-      <li><img src="assets/img/ack/juan-pablo-saavedra.webp" alt=""><span>Juan Pablo Saavedra</span></li>
-      <li><img src="assets/img/ack/ximena-lopez.webp" alt=""><span>Ximena López</span></li>
-      <li><img src="assets/img/ack/sofia-hidalgo.webp" alt=""><span>Sofía Hidalgo</span></li>
-      <li><img src="assets/img/ack/alvaro-lladser.webp" alt=""><span>Álvaro Lladser</span></li>
-    </ul>
-  </div>
-  <div class="ack-support">
-    <div class="ack-logos">
-      <img class="ack-anid" src="assets/img/ack/anid.png" alt="Ministerio de Ciencia and ANID">
-      <img class="ack-centro" src="assets/img/ack/centro-ciencia-vida.png" alt="Centro Ciencia &amp; Vida">
-    </div>
-    <div>
-      <h2>Research funding</h2>
-      <p>ANID Basal FB210008 · Centro Ciencia &amp; Vida</p>
-      <p>ANID FONDECYT 1212070, 11190897, 3220788, 3230650</p>
-    </div>
-    <div>
-      <h2>Spectral cytometry</h2>
-      <p>Laboratorio de Inmunología, Universidad de Chile</p>
-      <p>Aurora spectral cytometer · ANID FONDEQUIP EQM220027</p>
-    </div>
-  </div>
-  <div class="foot"><span class="src"></span><span class="num"></span></div>
-</section>
-
 <section class="slide global-conclusions" id="s-concl" data-time="55" data-title="FlowCV connects data, analytical decisions and results">
   <p class="kicker">Conclusions</p>
   <h1>FlowCV connects <em>data, analytical decisions and results</em></h1>
@@ -542,9 +506,48 @@
       </div>
     </div>
   </div>
-  <p class="concl-thanks">Thank you · Questions?</p>
   <div class="foot"><span class="src"></span><span class="num"></span></div>
   
+</section>
+
+<section class="slide acknowledgements" id="s-ack" data-time="20" data-title="Acknowledgements">
+  <div class="ack-main">
+    <div class="ack-opening">
+      <h1>Thank you</h1>
+      <p>We are grateful to the patients who shared blood and tumor samples and made this study possible.</p>
+    </div>
+    <div class="ack-team">
+      <h2>With thanks to the Immunoncology Laboratory</h2>
+      <ul class="ack-portraits" aria-label="Coauthors">
+        <li><img src="assets/img/ack/catalina-bustamante.webp" alt=""><span>Catalina Bustamante</span></li>
+        <li><img src="assets/img/ack/andres-hernandez.webp" alt=""><span>Andrés Hernández Oliveras</span></li>
+        <li><img src="assets/img/ack/juan-pablo-vega.webp" alt=""><span>Juan&nbsp;Pablo Vega</span></li>
+        <li><img src="assets/img/ack/daniela-malave.webp" alt=""><span>Daniela Malavé</span></li>
+        <li><img src="assets/img/ack/felipe-ardiles.webp" alt=""><span>Felipe Ardiles</span></li>
+        <li><img src="assets/img/ack/juan-pablo-saavedra.webp" alt=""><span>Juan&nbsp;Pablo Saavedra</span></li>
+        <li><img src="assets/img/ack/ximena-lopez.webp" alt=""><span>Ximena López</span></li>
+        <li><img src="assets/img/ack/sofia-hidalgo.webp" alt=""><span>Sofía Hidalgo</span></li>
+        <li><img src="assets/img/ack/alvaro-lladser.webp" alt=""><span>Álvaro Lladser</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ack-support">
+    <div class="ack-logos">
+      <img class="ack-centro" src="assets/img/ack/centro-ciencia-vida.png" alt="Centro Ciencia &amp; Vida">
+      <img class="ack-anid" src="assets/img/ack/anid.png" alt="Ministerio de Ciencia and ANID">
+    </div>
+    <div>
+      <h2>Research funding</h2>
+      <p>ANID Basal FB210008 · Centro Ciencia &amp; Vida</p>
+      <p>ANID FONDECYT 1212070, 11190897, 3220788, 3230650</p>
+    </div>
+    <div>
+      <h2>Spectral cytometry</h2>
+      <p>Laboratorio de Inmunología, Universidad de Chile</p>
+      <p>Aurora spectral cytometer · ANID FONDEQUIP EQM220027</p>
+    </div>
+  </div>
+  <div class="foot"><span class="src"></span><span class="num"></span></div>
 </section>
 
 <section class="slide" id="s-branches" data-time="0" data-title="Comparing alternative analyses from the same input">
@@ -599,11 +602,11 @@ window.PRESENTER = {
 <script src="data/spectral.js"></script>
 <script src="data/spectral-rcc.js"></script>
 <script src="data/rcc-dims.js"></script>
-<script src="data/cd8-figure-markers.js"></script>
-<script src="code/figure-assistant-demo.js?v=20261120-cd8-figure"></script>
+<script src="data/cd8-figure-markers.js?v=20261120-polish"></script>
+<script src="code/figure-assistant-demo.js?v=20261120-polish"></script>
 <script src="data/rcc-cd8-umap-detail.js"></script>
 <script src="code/point-cloud.js"></script>
-<script src="code/figs.js?v=20261120-cd8-figure"></script>
+<script src="code/figs.js?v=20261120-polish"></script>
 <script src="data/rcc-patients.js"></script>
 <script src="data/rcc-cd8-umap.js"></script>
 <script src="data/rcc-cd8-umap-12k.js"></script>
@@ -613,8 +616,8 @@ window.PRESENTER = {
 <script src="code/rcc-steps-fig.js"></script>
 <script src="data/rcc-trajectories.js"></script>
 <script src="code/rcc-traj-fig.js?v=20261120-cd8"></script>
-<script src="code/apptour.js?v=20261120-figure"></script>
-<script src="code/deck.js"></script>
+<script src="code/apptour.js?v=20261120-polish"></script>
+<script src="code/deck.js?v=20261120-polish"></script>
 <script src="code/presenter-tools.js"></script>
 </body>
 </html>

@@ -27,11 +27,29 @@ TISSUE_COLORS = ("#c43a4b", "#176aab")
 POPS = [
     ("Naive", (14,), "#7199c3"),
     ("Central memory", (13,), "#d88a16"),
+    ("Circulating memory", (12,), "#9bad32"),
+    ("Progenitor", (21,), "#bd4b79"),
     ("Effector", (10,), "#087f98"),
+    ("Effector memory", (11,), "#245ebe"),
     ("Resident memory", (15, 17), "#288e5d"),
     ("Resident exhausted", (18, 19), "#8551c5"),
 ]
 MARKERS = ("CCR7", "CD45RO", "GZMB", "CD69", "CD103", "PD-1", "TIM-3")
+DISPLAY_COFACTOR = 150
+SUPERSCRIPT = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
+
+
+def decade_ticks(low, high):
+    """Label saved arcsinh coordinates in the deck's display units."""
+    ticks = [(0.0, "0")] if low <= 0 <= high else []
+    for exponent in range(5, 1, -1):
+        label = f"10{str(exponent).translate(SUPERSCRIPT)}"
+        for sign, prefix in [(-1, "−"), (1, "")]:
+            value = float(np.arcsinh(sign * 10**exponent / DISPLAY_COFACTOR))
+            gap = (.14 if sign < 0 else .085) * (high - low)
+            if low <= value <= high and all(abs(value - x) >= gap for x, _ in ticks):
+                ticks.append((value, prefix + label))
+    return sorted(ticks)
 
 
 def explicit_scatter_points(svg):
@@ -81,12 +99,10 @@ def render(flowcv, output, assistant_data=None):
     assert set(source) == set(FILES)
 
     groups = np.stack([np.isin(phenotype, ids) for _, ids, _ in POPS])
-    colors = np.full(len(source), "#aeb9c7")
-    for mask, (_, _, color) in zip(groups, POPS):
-        colors[mask] = color
+    np.testing.assert_array_equal(groups.sum(axis=0), np.ones(len(source), dtype=int))
+    colors = np.array([color for _, _, color in POPS])[groups.argmax(axis=0)]
     tissue_masks = [np.isin(source, [f for f, (_, t) in FILES.items() if t == tissue]) for tissue in ('B', 'T')]
-    composition = np.vstack([groups, ~groups.any(axis=0)])
-    counts = np.stack([composition[:, mask].sum(axis=1) for mask in tissue_masks])
+    counts = np.stack([groups[:, mask].sum(axis=1) for mask in tissue_masks])
     totals = counts.sum(axis=1)
     np.testing.assert_array_equal(totals, [mask.sum() for mask in tissue_masks])
     fractions = 100 * counts / totals[:, None]
@@ -100,8 +116,11 @@ def render(flowcv, output, assistant_data=None):
         sample.append(np.concatenate(ids))
         rng.shuffle(sample[-1])
     shown = np.concatenate(sample)
+    values = data[shown][:, measured].astype("<f4")
+    lows = np.floor(values.min(axis=0)).astype(int)
+    highs = np.ceil(values.max(axis=0)).astype(int)
+    ticks = [decade_ticks(low, high) for low, high in zip(lows, highs)]
     marker_data = data[:, measured[-2:]]
-    print("Displayed scatter ranges", marker_data[shown].min(axis=0), marker_data[shown].max(axis=0))
     print("Full CD8 count per tissue", totals.tolist())
 
     plt.rcParams.update({"svg.fonttype": "none", "svg.hashsalt": "asochin-cd8-figure",
@@ -127,16 +146,16 @@ def render(flowcv, output, assistant_data=None):
             ax.spines[edge].set_color("#8b9bac")
         ax.tick_params(axis="both", length=4, pad=4, labelsize=12)
 
-    for x1, y1, x2, y2 in [(635, 16, 635, 729), (20, 375, 1280, 375)]:
+    for x1, y1, x2, y2 in [(635, 16, 635, 720), (20, 404, 1280, 404)]:
         fig.add_artist(plt.Line2D([x1 / W, x2 / W], [1-y1/H, 1-y2/H],
                                   transform=fig.transFigure, color="#dbe4ed", lw=1.1))
-    heading(24, 31, "A", "CD8 cell map", "Saved UMAP coordinates · same view in both tissues")
-    heading(656, 31, "B", "PD-1 × TIM-3", "Single-cell expression · MNN-corrected arcsinh scale")
+    heading(24, 31, "A", "CD8 cell map", "Same UMAP coordinates · phenotypes matched by marker profile")
+    heading(656, 31, "B", "PD-1 × TIM-3", "MNN-corrected signal · arcsinh display (cofactor 150)")
     umap_panels = []
     for j, pick in enumerate(sample):
-        ax = axes(66+j*277, 93, 204, 204)
+        ax = axes(67+j*298, 81, 240, 240)
         umap_panels.append(ax)
-        ax.scatter(*xy[pick].T, s=3.0, c=colors[pick], alpha=0.62, linewidths=0)
+        ax.scatter(*xy[pick].T, s=7.0, c=colors[pick], alpha=0.73, linewidths=0)
         ax.set(xlim=(xy[shown, 0].min() - .5, xy[shown, 0].max() + .5),
                ylim=(xy[shown, 1].min() - .5, xy[shown, 1].max() + .5),
                xlabel="UMAP 1", ylabel="UMAP 2" if j == 0 else "")
@@ -144,26 +163,29 @@ def render(flowcv, output, assistant_data=None):
         ax.xaxis.set_major_locator(MaxNLocator(4, integer=True))
         ax.yaxis.set_major_locator(MaxNLocator(4, integer=True))
         polish(ax)
-        caption(168+j*277, 83, TISSUE[j], 16, TISSUE_COLORS[j], ha="center", weight="bold")
+        caption(187+j*298, 75, TISSUE[j], 16, TISSUE_COLORS[j], ha="center", weight="bold")
 
-        ax = axes(710+j*283, 93, 204, 204)
-        ax.scatter(*marker_data[pick].T, s=3.25, c=TISSUE_COLORS[j], alpha=0.43, linewidths=0)
-        bounds = np.column_stack((np.floor(marker_data[shown].min(axis=0)), np.ceil(marker_data[shown].max(axis=0))))
-        ax.set(xlim=bounds[0], ylim=bounds[1], xlabel="PD-1", ylabel="TIM-3" if j == 0 else "")
-        ax.xaxis.set_major_locator(MaxNLocator(6, integer=True))
-        ax.yaxis.set_major_locator(MaxNLocator(6, integer=True))
+        ax = axes(711+j*287, 81, 234, 240)
+        ax.scatter(*marker_data[pick].T, s=6.0, c=TISSUE_COLORS[j], alpha=0.45, linewidths=0)
+        ax.set(xlim=(lows[-2], highs[-2]), ylim=(lows[-1], highs[-1]),
+               xlabel="PD-1", ylabel="TIM-3" if j == 0 else "")
+        ax.set_xticks(*zip(*ticks[-2]))
+        ax.set_yticks(*zip(*ticks[-1]))
         polish(ax)
-        caption(812+j*283, 83, TISSUE[j], 16, TISSUE_COLORS[j], ha="center", weight="bold")
+        caption(828+j*287, 75, TISSUE[j], 16, TISSUE_COLORS[j], ha="center", weight="bold")
 
-    for i, (name, _, color) in enumerate(POPS + [("Other CD8", (), "#aeb9c7")]):
-        x, y = 48 + i % 3 * 188, 343 + i // 3 * 19
-        caption(x, y, "●", 14, color)
-        caption(x + 17, y, name, 12, MUTED)
-    caption(952, 353, "500 CD8 cells per FCS shown in A and B", 14, MUTED, ha="center")
+    def legend(x0, y0, column):
+        for i, (name, _, color) in enumerate(POPS):
+            x, y = x0 + i % 3 * column, y0 + i // 3 * 16
+            caption(x, y, "●", 13, color)
+            caption(x + 15, y, name, 12, MUTED)
 
-    heading(24, 411, "C", "CD8 marker profiles", "Median signal by phenotype · all CD8 cells")
+    legend(48, 357, 188)
+    caption(970, 378, "500 CD8 cells per FCS shown in A and B", 14, MUTED, ha="center")
+
+    heading(24, 436, "C", "CD8 marker profiles", "Median signal by phenotype · all CD8 cells")
     medians = np.stack([np.median(data[mask][:, measured], axis=0) for mask in groups])
-    ax = axes(160, 458, 382, 203)
+    ax = axes(160, 477, 402, 200)
     heat = ax.imshow(medians, cmap="viridis", aspect="auto", interpolation="nearest")
     heat_labels = []
     for i, row in enumerate(medians):
@@ -178,18 +200,18 @@ def render(flowcv, output, assistant_data=None):
     ax.tick_params(length=0, pad=7)
     for edge in ax.spines.values():
         edge.set_visible(False)
-    colorbar = fig.colorbar(heat, cax=axes(559, 458, 12, 203))
+    colorbar = fig.colorbar(heat, cax=axes(577, 477, 12, 200))
 
-    heading(656, 411, "D", "CD8 composition by tissue", "Percentage of CD8 cells pooled within each tissue")
-    ax = axes(760, 466, 489, 159)
+    heading(656, 436, "D", "CD8 composition by tissue", "Percentage of CD8 cells pooled within each tissue")
+    ax = axes(748, 472, 515, 169)
     left = np.zeros(2)
     y = [1, 0]
-    for i, (_, _, color) in enumerate(POPS + [("Other CD8", (), "#aeb9c7")]):
+    for i, (_, _, color) in enumerate(POPS):
         ax.barh(y, fractions[:, i], left=left, height=.54, color=color, edgecolor="white", linewidth=.9)
         for j, fraction in enumerate(fractions[:, i]):
-            if fraction >= 7:
+            if fraction >= 5:
                 ax.text(left[j] + fraction / 2, y[j], f"{fraction:.0f}%", ha="center", va="center",
-                        fontsize=13, weight="bold", color="#0f172a" if i in (0, 1, 5) else "white")
+                        fontsize=13, weight="bold", color="#0f172a" if i in (0, 1, 2) else "white")
         left += fractions[:, i]
     ax.set(xlim=(0, 100), ylim=(-.48, 1.48), xticks=[0, 25, 50, 75, 100], yticks=y)
     ax.set_yticklabels(TISSUE)
@@ -200,11 +222,8 @@ def render(flowcv, output, assistant_data=None):
     for label, color in zip(ax.get_yticklabels(), TISSUE_COLORS):
         label.set_color(color)
         label.set_fontweight("bold")
-    for i, (name, _, color) in enumerate(POPS + [("Other CD8", (), "#aeb9c7")]):
-        x, y = 675 + i % 3 * 200, 674 + i // 3 * 20
-        caption(x, y, "●", 13, color)
-        caption(x + 16, y, name, 12, MUTED)
-    caption(24, 730, "ccRCC paired blood and tumor study · 68,936 CD8 T cells · saved FlowCV analysis", 13, MUTED)
+    legend(675, 681, 200)
+    caption(24, 737, "ccRCC paired blood and tumor study · 68,936 CD8 T cells · saved FlowCV analysis", 13, MUTED)
 
     def write_figure(path):
         fig.savefig(path, format="svg", metadata={"Title": "CD8 T cells in paired blood and tumor",
@@ -232,15 +251,14 @@ def render(flowcv, output, assistant_data=None):
         write_figure(output.with_name("cd8-linked-figure-ai-final.svg"))
 
         # The 21 marker pairs use the same individual CD8 cells as the first figure page.
-        values = data[shown][:, measured].astype("<f4")
         display = {
             "markers": MARKERS, "n": len(values),
-            "lo": np.floor(values.min(axis=0)).astype(int).tolist(),
-            "hi": np.ceil(values.max(axis=0)).astype(int).tolist(),
+            "lo": lows.tolist(), "hi": highs.tolist(), "ticks": ticks,
+            "displayCofactor": DISPLAY_COFACTOR,
             "v": base64.b64encode(values.tobytes()).decode("ascii"),
         }
         assistant_data.write_text("// Generated by tools/export_cd8_figure.py. Values are little-endian Float32.\n"
-                                  "window.DECK_FIGURE_CD8 = " + json.dumps(display, separators=(",", ":")) + ";\n")
+                                  "window.DECK_FIGURE_CD8 = " + json.dumps(display, separators=(",", ":"), ensure_ascii=False) + ";\n")
     plt.close(fig)
 
 

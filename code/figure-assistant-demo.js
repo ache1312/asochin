@@ -23,17 +23,13 @@
   const FIG_W = 1300, FIG_H = 748;
   // ---------- 21 plots: each pair of the seven CD8 markers ----------
   const CD8 = window.DECK_FIGURE_CD8;
-  const COLS = 7, ROWS = 3, MARGIN = 22, CELL_W = (FIG_W - 2 * MARGIN) / COLS, CELL_H = (FIG_H - 2 * MARGIN) / ROWS, SIDE = 124;
-  const cellBox = (k) => { const c = k % COLS, r = Math.floor(k / COLS), x = MARGIN + c * CELL_W, y = MARGIN + r * CELL_H; return { x, y, px: x + 46, py: y + 30 }; };
-  // These are the saved MNN-corrected arcsinh values.
+  const COLS = 7, ROWS = 3, MARGIN = 16, CELL_W = (FIG_W - 2 * MARGIN) / COLS, CELL_H = (FIG_H - 2 * MARGIN) / ROWS, SIDE = 135;
+  const cellBox = (k) => { const c = k % COLS, r = Math.floor(k / COLS), x = MARGIN + c * CELL_W, y = MARGIN + r * CELL_H; return { x, y, px: x + 42, py: y + 32 }; };
+  // The SVG and canvas use the same decades on the saved arcsinh coordinates.
   const ticksOf = (marker) => {
     const j = CD8.markers.indexOf(marker);
-    const lo = CD8.lo[j], hi = CD8.hi[j], step = Math.max(1, Math.ceil((hi - lo) / 5));
-    const ticks = [];
-    for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
-      ticks.push([(v - lo) / (hi - lo), String(v).replace("-", "−")]);
-    }
-    return ticks;
+    const lo = CD8.lo[j], hi = CD8.hi[j];
+    return CD8.ticks[j].map(([v, label]) => [(v - lo) / (hi - lo), label]);
   };
   // Rainbow density palette from FlowCV's featureDensityColor.ts.
   const STOPS = [[0, [2, 12, 76]], [.2, [0, 54, 188]], [.4, [0, 210, 255]], [.58, [0, 196, 96]], [.76, [255, 225, 0]], [.9, [255, 128, 0]], [1, [224, 0, 0]]];
@@ -73,7 +69,7 @@
       const { px, py } = cellBox(n);
       if (!after) { x.fillStyle = "#0f172a"; x.font = "700 14px 'Source Sans 3', sans-serif"; x.textAlign = "center"; x.fillText(`${p.y} vs ${p.x}`, px + SIDE / 2, py - 10); }
       x.strokeStyle = "#94a3b8"; x.lineWidth = 1; x.strokeRect(px, py, SIDE, SIDE);
-      const r = after ? 1.05 : .5;
+      const r = after ? 1.22 : .57;
       x.save(); x.beginPath(); x.rect(px + .5, py + .5, SIDE - 1, SIDE - 1); x.clip();
       for (const i of p.order) { x.fillStyle = densityColor(p.pts[3 * i + 2]); x.beginPath(); x.arc(px + 1.5 + p.pts[3 * i] * (SIDE - 3), py + SIDE - 1.5 - p.pts[3 * i + 1] * (SIDE - 3), r, 0, 2 * Math.PI); x.fill(); }
       x.restore();
@@ -82,8 +78,12 @@
       x.textAlign = "center"; let lastR = -1e9; for (const [u, t] of ticksOf(p.x)) { const tx = X0 + u * W0, hw = x.measureText(t).width / 2; x.beginPath(); x.moveTo(tx, py + SIDE); x.lineTo(tx, py + SIDE + 4); x.stroke(); if (tx - hw > lastR + 3) { x.fillText(t, tx, py + SIDE + 6 + ts); lastR = tx + hw; } }
       x.textAlign = "right"; for (const [u, t] of ticksOf(p.y)) { const ty = Y0 - u * W0; x.beginPath(); x.moveTo(px, ty); x.lineTo(px - 4, ty); x.stroke(); x.fillText(t, px - 6, ty + ts * .35); }
       x.fillStyle = after ? "#0f172a" : "#475569"; x.font = `600 ${fs}px 'Source Sans 3', sans-serif`; x.textAlign = "center"; x.fillText(p.x, px + SIDE / 2, py + SIDE + 9 + ts + fs);
-      x.save(); x.translate(px - 31, py + SIDE / 2); x.rotate(-Math.PI / 2); x.fillText(p.y, 0, 0); x.restore();
+      x.save(); x.translate(px - 35, py + SIDE / 2); x.rotate(-Math.PI / 2); x.fillText(p.y, 0, 0); x.restore();
     });
+    x.fillStyle = "#475569";
+    x.font = "500 15px 'Source Sans 3', sans-serif";
+    x.textAlign = "center";
+    x.fillText(`MNN-corrected signal · arcsinh display (cofactor ${CD8.displayCofactor})`, FIG_W / 2, FIG_H - 15);
   }
   window.FlowCVFigurePage = { draw: drawPage };
 
@@ -101,7 +101,8 @@
       this.pageBefore = this.root.querySelector(".figure-ai-page-before");
       this.pageAfter = this.root.querySelector(".figure-ai-page-after");
       this.panels = JSON.parse(this.main.parentElement.dataset.panelBounds);
-      this.paths = [this.main.getAttribute("src"), ...["1", "2", "final"].map(stage => `assets/img/cd8-linked-figure-ai-${stage}.svg`)];
+      const revision = new URL(this.main.src).search;
+      this.paths = [this.main.getAttribute("src"), ...["1", "2", "final"].map(stage => `assets/img/cd8-linked-figure-ai-${stage}.svg${revision}`)];
       this.paths.forEach((path) => { const image = new Image(); image.src = path; });
       this.nodes = Object.fromEntries([...this.root.querySelectorAll("[data-ai-field]")].map((node) => [node.dataset.aiField, node]));
       this.pauseButton = this.root.querySelector("[data-ai-pause]");

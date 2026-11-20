@@ -34,6 +34,7 @@
         try { await b.decode(); } catch { return false; }
         if (my !== this.token) return false;
         b.dataset.img = img;
+        a.style.transition = b.style.transition = "none";
         b.classList.add("on"); a.classList.remove("on"); this.top = 1 - this.top;
         return true;
       },
@@ -207,16 +208,64 @@
     ],
   });
 
-  // ---------- new slide after slide 8 · a chain of decisions (11 Nov 2026) ----------
-  // Real screens of the thesis analysis growing module by module, with real drag-and-drop onto the previous module
-  // (output/thesis-capture-2026-11-11/rec_chain2.mjs, shots-chain2/). The ghost label stands in for the browser drag image.
+  // Slide 9 · search and add real FlowCV modules to a growing workflow.
   const PANEL = [260, 380, 1.8];
+  const SEARCH_BEATS = [115, 86, 127, 93, 105, 79, 118, 88, 124];
+  const moduleSearch = (tag, text, cap) => [
+    { cam: PANEL, cur: [132, 288], ring: null, hold: 880 },
+    { tap: true, hold: 160 },
+    { type: {
+      sprite: `chain/${tag}-search.webp`, box: [20, 260, 225, 646],
+      beats: [150, ...SEARCH_BEATS.slice(0, text.length - 1), 300],
+    } },
+    { img: `chain/c-${tag}-result.jpg`, cap, hold: 630 },
+  ];
+  const clickFoundModule = () => [
+    { cur: [132, 372], hold: 460 }, { tap: true, hold: 160 },
+  ];
   FIGS["s-chain"] = tour({
     on: [0, 1, 2],
+    cut: true,
     chapters: [
-      [{"img": "chain/c00-start.jpg", "cam": [924, 575, 1.75], "ring": null, "cur": null, "ghost": null, "cap": "The analysis from slide 8: for now, only its dataset.", "hold": 1500}, {"cam": [260, 380, 1.8], "cur": [132, 288], "hold": 1000}, {"tap": true, "hold": 300}, {"img": "chain/c-scaling-result.jpg", "cap": "Search a module: <b>Scaling</b>.", "hold": 1300}, {"cur": [132, 372], "hold": 700}, {"tap": true, "hold": 300}, {"img": "chain/c-scaling-fit.jpg", "cam": [918, 574, 1.75], "cur": null, "cap": "It connects after the selected step: <b>one decision</b>, with its parameters.", "hold": 300}],
-      [{"img": "chain/c-batch-result.jpg", "cam": [260, 380, 1.8], "ring": null, "cur": [132, 288], "cap": "<b>Batch correction</b>: MNN, CyCombine, Harmony… also a choice. Drag it…", "hold": 1300}, {"cam": [719, 470, 1.08], "cur": [132, 372], "hold": 1150}, {"tap": true, "ghost": "Batch Correction", "hold": 260}, {"drag": {"from": [132, 372], "via": [718, 747], "to": [1065, 534], "ms": 1900, "frames": [["chain/c-batch-drag1.jpg", [164, 383]], ["chain/c-batch-drag2.jpg", [260, 416]], ["chain/c-batch-drag3.jpg", [420, 471]], ["chain/c-batch-drag4.jpg", [644, 548]], ["chain/c-batch-drag5.jpg", [916, 641]], ["chain/c-batch-drag6.jpg", [1065, 660]], ["chain/c-batch-drag7.jpg", [1065, 590]], ["chain/c-batch-drag8.jpg", [1065, 548]], ["chain/c-batch-drag9.jpg", [1065, 535]]]}, "hold": 0}, {"cur": [1065, 534], "hold": 550}, {"img": "chain/c-batch-dropped.jpg", "ghost": null, "fade": 120, "cap": "…and drop it on <b>Scaling</b>: it connects after it.", "hold": 900}, {"img": "chain/c-batch-fit.jpg", "cam": [925, 574, 1.53], "cur": null, "hold": 1100}, {"img": "chain/c-umap-result.jpg", "cam": [260, 380, 1.8], "ring": null, "cur": [132, 288], "cap": "A map of the cells: <b>UMAP</b>.", "hold": 1300}, {"cam": [790, 470, 0.99], "cur": [132, 372], "hold": 1150}, {"tap": true, "ghost": "Embedding", "hold": 260}, {"drag": {"from": [132, 372], "via": [789, 747], "to": [1206, 534], "ms": 1900, "frames": [["chain/c-umap-drag1.jpg", [169, 383]], ["chain/c-umap-drag2.jpg", [279, 416]], ["chain/c-umap-drag3.jpg", [463, 471]], ["chain/c-umap-drag4.jpg", [721, 548]], ["chain/c-umap-drag5.jpg", [1034, 641]], ["chain/c-umap-drag6.jpg", [1206, 660]], ["chain/c-umap-drag7.jpg", [1206, 590]], ["chain/c-umap-drag8.jpg", [1206, 548]], ["chain/c-umap-drag9.jpg", [1206, 535]]]}, "hold": 0}, {"cur": [1206, 534], "hold": 550}, {"img": "chain/c-umap-dropped.jpg", "ghost": null, "fade": 120, "cap": "Dropped on <b>Batch Correction</b>: the chain grows.", "hold": 900}, {"img": "chain/c-umap-fit.jpg", "cam": [926, 574, 1.21], "cur": null, "hold": 300}],
-      [{"img": "chain/c-cluster-result.jpg", "cam": [260, 380, 1.8], "ring": null, "cur": [132, 288], "cap": "Groups: <b>Clustering</b> with FlowSOM.", "hold": 1300}, {"cam": [860, 470, 0.91], "cur": [132, 372], "hold": 1150}, {"tap": true, "ghost": "Clustering", "hold": 260}, {"drag": {"from": [132, 372], "via": [860, 747], "to": [1347, 534], "ms": 1900, "frames": [["chain/c-cluster-drag1.jpg", [174, 383]], ["chain/c-cluster-drag2.jpg", [299, 416]], ["chain/c-cluster-drag3.jpg", [507, 471]], ["chain/c-cluster-drag4.jpg", [799, 548]], ["chain/c-cluster-drag5.jpg", [1153, 641]], ["chain/c-cluster-drag6.jpg", [1347, 660]], ["chain/c-cluster-drag7.jpg", [1347, 590]], ["chain/c-cluster-drag8.jpg", [1347, 548]], ["chain/c-cluster-drag9.jpg", [1347, 535]]]}, "hold": 0}, {"cur": [1347, 534], "hold": 550}, {"img": "chain/c-cluster-dropped.jpg", "ghost": null, "fade": 120, "cap": "Connected after <b>Embedding</b>.", "hold": 900}, {"img": "chain/c-cluster-fit.jpg", "cam": [930, 575, 1.14], "cur": null, "hold": 1100}, {"img": "chain/c-review-fit.jpg", "cam": [925, 574, 1.15], "cap": "Then a review to name the groups, and the figure.", "hold": 1000}, {"img": "chain/c-figure-fit.jpg", "cam": [640, 560, 2.0], "ring": null, "cap": "Scaling, batch correction, map, groups…", "hold": 1700}, {"cam": [1210, 560, 2.0], "cap": "…their review and the figure.", "hold": 1700}, {"cam": [925, 575, 1.15], "ring": [[349, 490, 1152, 90]], "cap": "Seven modules, one chain: <b>the analysis is the chain of decisions</b>, saved and rerunnable.", "hold": 300}],
+      [
+        {"img": "chain/c00-start.jpg", "cam": [924, 575, 1.75], "ring": null, "cur": null, "ghost": null, "cap": "The analysis from slide 8: for now, only its dataset.", "hold": 1500},
+        ...moduleSearch("scaling", "Scaling", "Search for <b>Scaling</b>."),
+        ...clickFoundModule(),
+        {"img": "chain/c-scaling-fit.jpg", "cam": [918, 574, 1.75], "cur": null, "cap": "It connects after the selected step: <b>one decision</b>, with its parameters.", "hold": 300},
+      ],
+      [
+        ...moduleSearch("batch", "Batch", "<b>Batch correction</b>: MNN, CyCombine, Harmony… also a choice. Drag it…"),
+        {"cam": [719, 470, 1.08], "cur": [132, 372], "hold": 1150},
+        {"tap": true, "ghost": "Batch Correction", "hold": 260},
+        {"drag": {"from": [132, 372], "via": [718, 747], "to": [1065, 534], "ms": 1900, "frames": [["chain/c-batch-drag1.jpg", [164, 383]], ["chain/c-batch-drag2.jpg", [260, 416]], ["chain/c-batch-drag3.jpg", [420, 471]], ["chain/c-batch-drag4.jpg", [644, 548]], ["chain/c-batch-drag5.jpg", [916, 641]], ["chain/c-batch-drag6.jpg", [1065, 660]], ["chain/c-batch-drag7.jpg", [1065, 590]], ["chain/c-batch-drag8.jpg", [1065, 548]], ["chain/c-batch-drag9.jpg", [1065, 535]]]}, "hold": 0},
+        {"cur": [1065, 534], "hold": 550},
+        {"img": "chain/c-batch-dropped.jpg", "ghost": null, "fade": 120, "cap": "…and drop it on <b>Scaling</b>: it connects after it.", "hold": 900},
+        {"img": "chain/c-batch-fit.jpg", "cam": [925, 574, 1.53], "cur": null, "hold": 1100},
+        ...moduleSearch("umap", "UMAP", "A map of the cells: <b>UMAP</b>."),
+        {"cam": [790, 470, 0.99], "cur": [132, 372], "hold": 1150},
+        {"tap": true, "ghost": "Embedding", "hold": 260},
+        {"drag": {"from": [132, 372], "via": [789, 747], "to": [1206, 534], "ms": 1900, "frames": [["chain/c-umap-drag1.jpg", [169, 383]], ["chain/c-umap-drag2.jpg", [279, 416]], ["chain/c-umap-drag3.jpg", [463, 471]], ["chain/c-umap-drag4.jpg", [721, 548]], ["chain/c-umap-drag5.jpg", [1034, 641]], ["chain/c-umap-drag6.jpg", [1206, 660]], ["chain/c-umap-drag7.jpg", [1206, 590]], ["chain/c-umap-drag8.jpg", [1206, 548]], ["chain/c-umap-drag9.jpg", [1206, 535]]]}, "hold": 0},
+        {"cur": [1206, 534], "hold": 550},
+        {"img": "chain/c-umap-dropped.jpg", "ghost": null, "fade": 120, "cap": "Dropped on <b>Batch Correction</b>: the chain grows.", "hold": 900},
+        {"img": "chain/c-umap-fit.jpg", "cam": [926, 574, 1.21], "cur": null, "hold": 300},
+      ],
+      [
+        ...moduleSearch("cluster", "Clustering", "Groups: <b>Clustering</b> with FlowSOM."),
+        {"cam": [860, 470, 0.91], "cur": [132, 372], "hold": 1150},
+        {"tap": true, "ghost": "Clustering", "hold": 260},
+        {"drag": {"from": [132, 372], "via": [860, 747], "to": [1347, 534], "ms": 1900, "frames": [["chain/c-cluster-drag1.jpg", [174, 383]], ["chain/c-cluster-drag2.jpg", [299, 416]], ["chain/c-cluster-drag3.jpg", [507, 471]], ["chain/c-cluster-drag4.jpg", [799, 548]], ["chain/c-cluster-drag5.jpg", [1153, 641]], ["chain/c-cluster-drag6.jpg", [1347, 660]], ["chain/c-cluster-drag7.jpg", [1347, 590]], ["chain/c-cluster-drag8.jpg", [1347, 548]], ["chain/c-cluster-drag9.jpg", [1347, 535]]]}, "hold": 0},
+        {"cur": [1347, 534], "hold": 550},
+        {"img": "chain/c-cluster-dropped.jpg", "ghost": null, "fade": 120, "cap": "Connected after <b>Embedding</b>.", "hold": 900},
+        {"img": "chain/c-cluster-fit.jpg", "cam": [930, 575, 1.14], "cur": null, "hold": 1100},
+        ...moduleSearch("review", "Review", "Find <b>FlowSOM Review</b> to name the groups."),
+        ...clickFoundModule(),
+        {"img": "chain/c-review-fit.jpg", "cam": [925, 574, 1.15], "cap": "The review is part of the saved workflow.", "hold": 1000, "cur": null},
+        ...moduleSearch("figure", "Figure", "Add a <b>Figure</b> module to assemble the results."),
+        ...clickFoundModule(),
+        {"img": "chain/c-figure-fit.jpg", "cam": [640, 560, 2.0], "ring": null, "cap": "Scaling, batch correction, map, groups…", "hold": 1700, "cur": null},
+        {"cam": [1210, 560, 2.0], "cap": "…their review and the figure.", "hold": 1700},
+        {"cam": [925, 575, 1.15], "ring": [[349, 490, 1152, 90]], "cap": "Seven modules, one chain: <b>the analysis is the chain of decisions</b>, saved and rerunnable.", "hold": 300},
+      ],
     ],
   });
   // ---------- slide 13 · change one decision, re-run only that module ----------
