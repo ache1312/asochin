@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FlowCV: integrated analysis of high-dimensional flow cytometry · ASOCHIN 2026</title>
 <link rel="icon" href="assets/img/favicon.svg">
-<link rel="stylesheet" href="code/deck.css?v=20261120-explorer">
+<link rel="stylesheet" href="code/deck.css?v=20261120-explorer2">
 <link rel="stylesheet" href="code/presenter-tools.css">
 </head>
 <body class="deck-spectral">
@@ -430,14 +430,17 @@
   <canvas id="ctend3d" width="3840" height="2160" style="width:1920px;height:1080px"></canvas>
   <div class="ct-panel" data-clickable>
     <div class="ct-modes" role="group" aria-label="Color cells by">
-      <span>Color by</span>
       <button type="button" data-mode="type">Cell type</button><button type="button" data-mode="tissue">Tissue</button><button type="button" data-mode="pseudo">Pseudotime</button><button type="button" data-mode="marker">Marker</button>
     </div>
-    <div class="ct-markers" role="group" aria-label="Marker" hidden></div>
-    <ul class="ct-leg"></ul>
-    <div class="ct-scale" hidden><span class="ct-scale-name"></span><div class="ct-scale-bar"></div><div class="ct-scale-ends"><span class="ct-scale-lo"></span><span class="ct-scale-hi"></span></div></div>
-    <div class="ct-traj" role="group" aria-label="Slingshot trajectories">
-      <div class="ct-traj-head"><span>Trajectories (Slingshot)</span><button type="button" class="ct-traj-all">Show all</button></div>
+    <div class="ct-body">
+      <div class="ct-markers" role="group" aria-label="Marker" hidden></div>
+      <ul class="ct-leg"></ul>
+      <p class="ct-legend-hint">% of the 32,000 cells shown · click to highlight</p>
+      <div class="ct-scale" hidden><span class="ct-scale-name"></span><div class="ct-scale-bar"></div><div class="ct-scale-ends"><span class="ct-scale-lo"></span><span class="ct-scale-hi"></span></div></div>
+      <div class="ct-summary" hidden><span class="ct-summary-title"></span><ul></ul></div>
+    </div>
+    <div class="ct-traj" role="group" aria-label="Slingshot trajectories from naive cells">
+      <div class="ct-traj-head"><span>Trajectories from naive cells</span><button type="button" class="ct-traj-all">Show all</button></div>
       <div class="ct-traj-list"></div>
     </div>
   </div>
@@ -603,7 +606,7 @@ window.PRESENTER = {
 <script src="code/figure-assistant-demo.js?v=20261120-grid"></script>
 <script src="data/rcc-cd8-umap-detail.js"></script>
 <script src="code/point-cloud.js?v=20261120-explorer"></script>
-<script src="code/figs.js?v=20261120-explorer"></script>
+<script src="code/figs.js?v=20261120-explorer2"></script>
 <script src="data/rcc-patients.js"></script>
 <script src="data/rcc-cd8-umap.js"></script>
 <script src="data/rcc-cd8-umap-12k.js"></script>

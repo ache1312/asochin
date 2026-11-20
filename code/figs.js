@@ -1507,9 +1507,13 @@
       this.expr = E ? bytes(E.expr) : null; this.t = E ? bytes(E.t) : null; this.tumor = E ? bytes(E.tumor) : null;
       this.mode = "type"; this.marker = E ? E.markers.indexOf("PD-1") : -1; this.focus = -1; this.lineFocus = -1;
       this.lines = new Set();
-      this.v = cd8Map(el.querySelector("#ctend3d"), { cx: 1330, cy: 580, scale: 420, radius: 1.6, alpha: 0.88, auto: 0.0012, yaw: 0.9, pitch: -0.3,
+      this.v = cd8Map(el.querySelector("#ctend3d"), { cx: 1290, cy: 610, scale: 470, radius: 1.7, alpha: 0.88, auto: 0.0012, yaw: 0.9, pitch: -0.3,
         palette: CT_COL, overlay: (x, proj, project) => this.drawLines(x, project) }, U);
       this.rgb = new Uint8Array(this.n * 3);
+      const THESIS = [14, 13, 12, 21, 10, 11, 15, 17, 18, 19];
+      this.lineName = (T ? T.lineages : []).map((l) => { const k = THESIS.indexOf(l.end_thesis); return k >= 0 ? CT_SHORT[k] : tn(l.end_name); });
+      this.typeShare = CT_COL.map(() => 0); for (let i = 0; i < this.n; i++) this.typeShare[this.ct[i]]++;
+      this.tumorShare = this.tumor ? this.tumor.reduce((a, v) => a + v, 0) / this.n : 0;
       const panel = el.querySelector(".ct-panel");
       panel.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => this.setMode(b.dataset.mode)));
       const markers = panel.querySelector(".ct-markers");
@@ -1517,7 +1521,7 @@
       markers.querySelectorAll("[data-m]").forEach((b) => b.addEventListener("click", () => { this.marker = +b.dataset.m; this.render(); }));
       const traj = panel.querySelector(".ct-traj-list");
       traj.innerHTML = (T ? T.lineages : []).map((l, j) =>
-        `<button type="button" data-l="${j}" style="--c:${LINEAGE_COL[j]}"><i></i>${l.lineage} · ${tn(l.end_name)}</button>`).join("");
+        `<button type="button" data-l="${j}" style="--c:${LINEAGE_COL[j]}"><b>${l.lineage}</b><span>${this.lineName[j]}</span></button>`).join("");
       traj.querySelectorAll("[data-l]").forEach((b) => b.addEventListener("click", () => {
         const j = +b.dataset.l;
         if (this.lines.has(j) && this.lineFocus === j) { this.lines.delete(j); this.lineFocus = -1; }
@@ -1535,10 +1539,11 @@
     legend() {
       const leg = this.el.querySelector(".ct-leg"), scale = this.el.querySelector(".ct-scale");
       let items = [];
-      if (this.mode === "type") items = [0, 1, 2, 3, 5, 4, 6, 7, 8, 9].map((k) => [k, CT_COL[k], CT_SHORT[k]]);
-      if (this.mode === "tissue") items = [[0, TISSUE_COL[0], "Blood"], [1, TISSUE_COL[1], "Tumor"]];
+      const pct = (v) => `${(100 * v).toFixed(v < 0.1 ? 1 : 0)}%`;
+      if (this.mode === "type") items = [0, 1, 2, 3, 5, 4, 6, 7, 8, 9].map((k) => [k, CT_COL[k], CT_SHORT[k], pct(this.typeShare[k] / this.n)]);
+      if (this.mode === "tissue") items = [[0, TISSUE_COL[0], "Blood", pct(1 - this.tumorShare)], [1, TISSUE_COL[1], "Tumor", pct(this.tumorShare)]];
       leg.hidden = !items.length;
-      leg.innerHTML = items.map(([k, c, name]) => `<li data-k="${k}" class="${this.focus === k ? "on" : ""}"><i style="background:${c}"></i>${name}</li>`).join("");
+      leg.innerHTML = items.map(([k, c, name, share]) => `<li data-k="${k}" class="${this.focus === k ? "on" : ""}"><i style="background:${c}"></i><span>${name}</span><em>${share}</em></li>`).join("");
       leg.classList.toggle("pinned", this.focus >= 0);
       leg.querySelectorAll("li").forEach((li) => li.addEventListener("click", (e) => {
         e.stopPropagation(); this.focus = this.focus === +li.dataset.k ? -1 : +li.dataset.k; this.render();
@@ -1551,6 +1556,31 @@
         scale.querySelector(".ct-scale-hi").textContent = this.mode === "pseudo" ? "late" : "high";
         scale.querySelector(".ct-scale-bar").style.background = `linear-gradient(90deg, ${[0, .25, .5, .75, 1].map((v) => `rgb(${rgbOf(viridis(v)).join(",")})`).join(",")})`;
       }
+      // Continuous modes: mean value per cell type (same scale as the colour bar), highest first.
+      const summary = this.el.querySelector(".ct-summary");
+      summary.hidden = !(continuous || this.mode === "tissue");
+      summary.classList.toggle("by-tissue", this.mode === "tissue");
+      if (this.mode === "tissue") {
+        // Share of each cell type within blood and within tumor (same cells as the map).
+        const cnt = [new Float64Array(10), new Float64Array(10)], tot = [0, 0];
+        for (let i = 0; i < this.n; i++) { cnt[this.tumor[i]][this.ct[i]]++; tot[this.tumor[i]]++; }
+        const share = (t, k) => cnt[t][k] / Math.max(tot[t], 1), maxShare = Math.max(...[0, 1].flatMap((t) => [...Array(10).keys()].map((k) => share(t, k))));
+        const rows = [...Array(10).keys()].sort((a, b) => (share(1, b) - share(0, b)) - (share(1, a) - share(0, a)));
+        summary.querySelector(".ct-summary-title").innerHTML = `Share of each cell type · <span style="color:${TISSUE_COL[0]}">blood</span> vs <span style="color:${TISSUE_COL[1]}">tumor</span>`;
+        summary.querySelector("ul").innerHTML = rows.map((k) => `<li title="${CT_SHORT[k]}: blood ${(100 * share(0, k)).toFixed(1)}% · tumor ${(100 * share(1, k)).toFixed(1)}%"><i style="background:${CT_COL[k]}"></i><span>${CT_SHORT[k]}</span>` +
+          `<b class="pair"><s style="width:${Math.round(100 * share(0, k) / maxShare)}%;background:${TISSUE_COL[0]}"></s><s style="width:${Math.round(100 * share(1, k) / maxShare)}%;background:${TISSUE_COL[1]}"></s></b></li>`).join("");
+      }
+      if (continuous) {
+        const M = this.E.markers.length, sum = new Float64Array(10), cnt = new Float64Array(10);
+        for (let i = 0; i < this.n; i++) {
+          const v = this.mode === "marker" ? this.expr[i * M + this.marker] / 255 : this.t[i] === 255 ? -1 : this.t[i] / 254;
+          if (v >= 0) { sum[this.ct[i]] += v; cnt[this.ct[i]]++; }
+        }
+        const rows = [...Array(10).keys()].filter((k) => cnt[k]).map((k) => [k, sum[k] / cnt[k]]).sort((a, b) => b[1] - a[1]);
+        summary.querySelector(".ct-summary-title").textContent = this.mode === "marker" ? "Mean expression by cell type" : "Mean pseudotime by cell type";
+        summary.querySelector("ul").innerHTML = rows.map(([k, v]) =>
+          `<li title="${CT_SHORT[k]}"><i style="background:${CT_COL[k]}"></i><span>${CT_SHORT[k]}</span><b><s style="width:${Math.round(100 * v)}%;background:rgb(${rgbOf(viridis(v)).join(",")})"></s></b></li>`).join("");
+      }
       this.el.querySelector(".ct-markers").hidden = this.mode !== "marker";
       this.el.querySelectorAll(".ct-markers [data-m]").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.m === this.marker)));
       this.el.querySelectorAll(".ct-modes [data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === this.mode)));
@@ -1559,6 +1589,7 @@
       });
       const all = this.el.querySelector(".ct-traj-all");
       all.textContent = this.lines.size === (this.T ? this.T.lineages.length : 0) ? "Hide all" : "Show all";
+      this.el.querySelector(".ct-legend-hint").hidden = !(this.mode === "type" || this.mode === "tissue");
     },
     render() {
       const { n, ct, dom, rgb } = this, M = this.E ? this.E.markers.length : 0;
@@ -1593,8 +1624,12 @@
         const [a, b] = [pts[pts.length - 2], pts[pts.length - 1]], ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
         x.fillStyle = LINEAGE_COL[j]; x.beginPath(); x.moveTo(b[0] + 16 * Math.cos(ang), b[1] + 16 * Math.sin(ang));
         x.lineTo(b[0] + 12 * Math.cos(ang + 2.4), b[1] + 12 * Math.sin(ang + 2.4)); x.lineTo(b[0] + 12 * Math.cos(ang - 2.4), b[1] + 12 * Math.sin(ang - 2.4)); x.fill();
-        const label = `${l.lineage} · ${tn(l.end_name)}`;
-        x.lineWidth = 6; x.strokeStyle = "rgba(11,18,32,.85)"; x.strokeText(label, b[0] + 22, b[1]); x.fillStyle = "#fff"; x.fillText(label, b[0] + 22, b[1]);
+        // numbered badge at the end of the curve; the panel names each trajectory
+        const bx = b[0] + 22 * Math.cos(ang), by = b[1] + 22 * Math.sin(ang);
+        x.beginPath(); x.arc(bx, by, 15, 0, 2 * Math.PI); x.fillStyle = LINEAGE_COL[j]; x.fill();
+        x.lineWidth = 3; x.strokeStyle = "rgba(11,18,32,.9)"; x.stroke();
+        x.fillStyle = "#0b1220"; x.textAlign = "center"; x.font = "700 19px 'Source Sans 3', system-ui, sans-serif"; x.fillText(String(l.lineage), bx, by + 1); x.textAlign = "left";
+        x.font = "600 24px 'Source Sans 3', system-ui, sans-serif";
         x.beginPath(); x.arc(pts[0][0], pts[0][1], 7, 0, 2 * Math.PI); x.fillStyle = "#fff"; x.fill();
       }
       x.globalAlpha = 1;
