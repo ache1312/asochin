@@ -976,7 +976,7 @@ p .saved { margin: 0 8px 0 0; }
 .ack-place { margin: 28px 0 0; }
 .ack-place img { display: block; width: 640px; height: 318px; object-fit: cover; object-position: 50% 42%; border-radius: 12px; }
 .ack-place figcaption { margin-top: 10px; font-size: 18px; color: var(--muted); }
-.ack-team h2 { margin: 0; font-size: 30px; font-weight: 600; }
+.ack-team h2 { margin: 0 0 26px; font-size: 30px; font-weight: 600; }
 .ack-team-sub { margin: 4px 0 26px; font-size: 21px; color: var(--muted); }
 .ack-portraits { display: grid; grid-template-columns: repeat(5, 164px); justify-content: space-between; gap: 22px 0; margin: 0; padding: 0; list-style: none; }
 .ack-portraits li { display: grid; justify-items: center; align-content: start; gap: 12px; text-align: center; color: var(--ink-2); font-size: 21px; line-height: 1.2; }
@@ -1134,3 +1134,9 @@ p .saved { margin: 0 8px 0 0; }
 .dims-zoom.on { opacity: 1; }
 .dims-zoom.gone { display: none; }
 @media print { .dims-zoom { display: none; } }
+
+/* s-rcc · sample source next to the analysis note (logo kept inside the card) */
+#s-rcc .rcc-foot { display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+#s-rcc .rcc-foot .rcc-track-note { margin: 0; flex: 1 1 auto; }
+#s-rcc .rcc-source { display: flex; align-items: center; gap: 12px; flex: none; color: var(--muted); font-size: 15px; letter-spacing: .06em; text-transform: uppercase; }
+#s-rcc .rcc-source img { height: 46px; width: auto; display: block; }
