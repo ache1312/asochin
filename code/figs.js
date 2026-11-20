@@ -26,10 +26,12 @@
     t = Math.max(0, Math.min(1, t)) * (VIRR.length - 1); const i = Math.min(VIRR.length - 2, Math.floor(t)), f = t - i;
     const a = VIRR[i], b = VIRR[i + 1]; return `rgb(${a.map((v, k) => Math.round(v + (b[k] - v) * f)).join(",")})`;
   }
+  // AXS: axis text scale (1 everywhere; slide 2 sets it larger around its own call). AXC: optional [x, y] axis-name colours.
+  let AXS = 1, AXC = null;
   function axes(x, w, h, pad, xr, yr, xl, yl, ticks = true) {
     x.strokeStyle = "#94a3b8"; x.lineWidth = 1.2; x.beginPath(); x.moveTo(pad.l, pad.t); x.lineTo(pad.l, h - pad.b); x.lineTo(w - pad.r, h - pad.b); x.stroke();
-    x.fillStyle = "#475569"; x.font = "600 17px 'Source Sans 3'"; x.textAlign = "center"; x.fillText(xl, pad.l + (w - pad.l - pad.r) / 2, h - 8);
-    x.save(); x.translate(16, pad.t + (h - pad.t - pad.b) / 2); x.rotate(-Math.PI / 2); x.fillText(yl, 0, 0); x.restore();
+    x.fillStyle = AXC ? AXC[0] : "#475569"; x.font = `${AXS > 1 ? 800 : 600} ${Math.round(17 * AXS)}px 'Source Sans 3'`; x.textAlign = "center"; x.fillText(xl, pad.l + (w - pad.l - pad.r) / 2, h - 8);
+    if (AXC) x.fillStyle = AXC[1]; x.save(); x.translate(16 * AXS, pad.t + (h - pad.t - pad.b) / 2); x.rotate(-Math.PI / 2); x.fillText(yl, 0, 0); x.restore();
     if (!ticks) return;
     if (ticks === "lgc") return lgcTicks(x, w, h, pad, xr, yr);
     x.font = "15px 'Source Sans 3'"; x.fillStyle = "#64748b";
@@ -66,19 +68,20 @@
   // "10³" with a raised exponent; align: "center" | "right"
   function powLabel(x, t, px, py, align) {
     if (t.e === null) { x.textAlign = align; x.fillText("0", px, py); return; }
-    x.font = "15px 'Source Sans 3'"; const base = (t.neg ? "−" : "") + "10", bw = x.measureText(base).width;
-    x.font = "11px 'Source Sans 3'"; const ew = x.measureText(String(t.e)).width;
+    const F1 = `${Math.round(15 * AXS)}px 'Source Sans 3'`, F2 = `${Math.round(11 * AXS)}px 'Source Sans 3'`;
+    x.font = F1; const base = (t.neg ? "−" : "") + "10", bw = x.measureText(base).width;
+    x.font = F2; const ew = x.measureText(String(t.e)).width;
     const left = align === "center" ? px - (bw + ew) / 2 : px - bw - ew;
-    x.textAlign = "left"; x.font = "15px 'Source Sans 3'"; x.fillText(base, left, py);
-    x.font = "11px 'Source Sans 3'"; x.fillText(String(t.e), left + bw + 0.5, py - 7); x.font = "15px 'Source Sans 3'";
+    x.textAlign = "left"; x.font = F1; x.fillText(base, left, py);
+    x.font = F2; x.fillText(String(t.e), left + bw + 0.5, py - 7 * AXS); x.font = F1;
   }
   function lgcTicks(x, w, h, pad, xr, yr) {
-    x.fillStyle = "#64748b"; x.strokeStyle = "#94a3b8"; x.lineWidth = 1.2; x.font = "15px 'Source Sans 3'";
+    x.fillStyle = AXS > 1 ? "#475569" : "#64748b"; x.strokeStyle = "#94a3b8"; x.lineWidth = 1.2; x.font = `${Math.round(15 * AXS)}px 'Source Sans 3'`;
     const X = (v) => pad.l + (v - xr[0]) / (xr[1] - xr[0]) * (w - pad.l - pad.r), Y = (v) => h - pad.b - (v - yr[0]) / (yr[1] - yr[0]) * (h - pad.t - pad.b);
     for (const t of LGC_TICKS) {
       const len = t.major ? 7 : 4;
-      if (t.p >= xr[0] && t.p <= xr[1]) { const px = X(t.p); x.beginPath(); x.moveTo(px, h - pad.b); x.lineTo(px, h - pad.b + len); x.stroke(); if (t.major) powLabel(x, t, px, h - pad.b + 24, "center"); }
-      if (t.p >= yr[0] && t.p <= yr[1]) { const py = Y(t.p); x.beginPath(); x.moveTo(pad.l, py); x.lineTo(pad.l - len, py); x.stroke(); if (t.major) powLabel(x, t, pad.l - 10, py + 5, "right"); }
+      if (t.p >= xr[0] && t.p <= xr[1]) { const px = X(t.p); x.beginPath(); x.moveTo(px, h - pad.b); x.lineTo(px, h - pad.b + len); x.stroke(); if (t.major) powLabel(x, t, px, h - pad.b + 24 * AXS, "center"); }
+      if (t.p >= yr[0] && t.p <= yr[1]) { const py = Y(t.p); x.beginPath(); x.moveTo(pad.l, py); x.lineTo(pad.l - len, py); x.stroke(); if (t.major) powLabel(x, t, pad.l - 10, py + 5 * AXS, "right"); }
     }
     x.textAlign = "center";
   }
@@ -213,9 +216,9 @@
     },
     // row labels left of the first column; column labels under the lowest visible row (rows can still be appearing)
     labels(x, lay, alphaOf, lowRow) {
-      x.font = "700 15px 'Source Sans 3'"; const s = lay.s, A = x.globalAlpha;
-      for (let r = 1; r <= lay.n; r++) { const a = alphaOf(r); if (a <= 0) continue; const [ox, oy] = this.at(lay, 0, r); x.globalAlpha = A * a; x.fillStyle = DET[r].c; x.textAlign = "right"; x.fillText(mlabel(DET[r].m), ox - 8, oy + s / 2 + 5); }
-      const yb = lay.T0 + (lowRow - 1) * (s + lay.gap) + s + 20;
+      x.font = "800 20px 'Source Sans 3'"; const s = lay.s, A = x.globalAlpha; // 19 Nov 2026: larger marker names (user)
+      for (let r = 1; r <= lay.n; r++) { const a = alphaOf(r); if (a <= 0) continue; const [ox, oy] = this.at(lay, 0, r); x.globalAlpha = A * a; x.fillStyle = DET[r].c; x.textAlign = "right"; x.fillText(mlabel(DET[r].m), ox - 7, oy + s / 2 + 7); }
+      const yb = lay.T0 + (lowRow - 1) * (s + lay.gap) + s + 24;
       for (let q = 0; q < lay.n; q++) { const a = alphaOf(q + 1); if (a <= 0) continue; const [ox] = this.at(lay, q, 1); x.globalAlpha = A * a; x.fillStyle = DET[q].c; x.textAlign = "center"; x.fillText(mlabel(DET[q].m), ox + s / 2, yb); }
       x.globalAlpha = A; x.textAlign = "left";
     },
@@ -464,7 +467,7 @@
     },
     // the CD4 × CD8 plot shrinks into the first panel of the matrix; the other panels appear with their marker
     drawDots() {
-      const x = ctxOf(this.dp), [W, H] = cssSize(this.dp), pad = { l: 62, r: 16, t: 16, b: 52 };
+      const x = ctxOf(this.dp), [W, H] = cssSize(this.dp), pad = { l: 92, r: 18, t: 16, b: 78 }; // 19 Nov 2026: room for larger axis text
       x.clearRect(0, 0, W, H);
       const lay = MAT.layout(W, H), [ox, oy] = MAT.at(lay, 0, 1), t = ease(this.gm);
       if (t < 1) {
@@ -485,10 +488,11 @@
       }
     },
     drawPlot(x, W, H, pad, xr, yr) {
-      const A = x.globalAlpha; axes(x, W, H, pad, xr, yr, "CD4", "CD8", "lgc");
+      // 19 Nov 2026 (user): larger axis values and names, in the markers' colours, and larger dots
+      const A = x.globalAlpha; AXS = 1.45; AXC = ["#0e7490", "#be185d"]; axes(x, W, H, pad, xr, yr, "CD4", "CD8", "lgc"); AXS = 1; AXC = null;
       const sx = (v) => pad.l + (v - xr[0]) / (xr[1] - xr[0]) * (W - pad.l - pad.r), sy = (v) => H - pad.b - (v - yr[0]) / (yr[1] - yr[0]) * (H - pad.t - pad.b);
       x.fillStyle = "#334155"; x.globalAlpha = A * (this.dots > 400 ? 0.42 : 0.8);
-      const r = this.dots > 400 ? 1.5 : 3;
+      const r = this.dots > 400 ? 2.3 : 3.6;
       for (let k = 0; k < this.dots; k++) { const i = this.order[k]; x.fillRect(sx(val(i, "CD4")) - r, sy(val(i, "CD8")) - r, r * 2, r * 2); }
       if (this.ga > 0) { // with only two markers, the gate takes every cell in the box
         x.fillStyle = "#1d4ed8"; x.globalAlpha = A * this.ga * 0.55;
@@ -838,7 +842,10 @@
       if (!this.z) return;
       const x = ctxOf(this.z), [W, H] = cssSize(this.z), { s: S, gd: G } = this.st; x.clearRect(0, 0, W, H);
       if (S <= 0) return;
-      const P = 372, X0 = [46, W - P - 6], Y0 = 52, F = "'Source Sans 3'";
+      const P = 340, X0 = [80, W - P - 14], Y0 = 52, F = "'Source Sans 3'";
+      // axis values in decades, as on slide 5: arcsinh(x / 150) of these processed files (assumed cofactor; display only)
+      const DEC = [[0, "0"], [100, "10²"], [1000, "10³"], [10000, "10⁴"], [100000, "10⁵"]];
+      const ticks = (j) => DEC.map(([v, t]) => [(Math.asinh(v / 150) - DM.lo[j]) / (DM.hi[j] - DM.lo[j]), t]).filter(([u]) => u >= 0.02 && u <= 0.98);
       const u = (i, j) => DM.V[i * DM.k + j] / 255, hi = (i, j) => u(i, j) > DM.thr[j], cd8 = (i) => DM.F[i] & 2;
       const L4 = { bit: 1, color: BLUE }, L8 = { bit: 2, color: PINK }, LX = { bit: 4, color: PURPLE }, LG = { key: "g8", color: "#d6d9e0", test: cd8 };
       const LS = this.SUB.map((t) => ({ key: "s" + t.name, color: t.color, test: (i) => cd8(i) && hi(i, 2) === t.ccr7 && hi(i, 3) === t.ro }));
@@ -853,10 +860,13 @@
         // badge + title
         x.fillStyle = frame; x.beginPath(); x.arc(ox + 14, oy - 26, 15, 0, 7); x.fill(); x.fillStyle = "#fff"; x.font = `800 18px ${F}`; x.textAlign = "center"; x.fillText(badge, ox + 14, oy - 20);
         x.fillStyle = tcol; x.font = `800 24px ${F}`; x.textAlign = "left"; x.fillText(title, ox + 38, oy - 18);
-        // axes
-        x.font = `700 20px ${F}`; x.textAlign = "center"; x.fillStyle = DCOL[q]; x.fillText(DM.markers[q] + " →", ox + P / 2, oy + P + 26);
-        x.save(); x.translate(ox - 14, oy + P / 2); x.rotate(-Math.PI / 2); x.fillStyle = DCOL[r]; x.fillText(DM.markers[r] + " →", 0, 0); x.restore();
-        x.font = `700 20px ${F}`; x.fillStyle = capCol; x.textAlign = "left"; x.fillText(cap, ox, oy + P + 60);
+        // axes: values in decades, then the marker names
+        x.fillStyle = "#475569"; x.strokeStyle = "#94a3b8"; x.lineWidth = 1.4; x.font = `500 19px ${F}`;
+        x.textAlign = "center"; for (const [u, t] of ticks(q)) { const px = ox + 2 + u * (P - 4); x.beginPath(); x.moveTo(px, oy + P + 1); x.lineTo(px, oy + P + 7); x.stroke(); x.fillText(t, px, oy + P + 26); }
+        x.textAlign = "right"; for (const [u, t] of ticks(r)) { const py = oy + P - 2 - u * (P - 4); x.beginPath(); x.moveTo(ox - 1, py); x.lineTo(ox - 7, py); x.stroke(); x.fillText(t, ox - 10, py + 6); }
+        x.font = `800 21px ${F}`; x.textAlign = "center"; x.fillStyle = DCOL[q]; x.fillText(DM.markers[q], ox + P / 2, oy + P + 52);
+        x.save(); x.translate(ox - 52, oy + P / 2); x.rotate(-Math.PI / 2); x.fillStyle = DCOL[r]; x.fillText(DM.markers[r], 0, 0); x.restore();
+        x.font = `700 20px ${F}`; x.fillStyle = capCol; x.textAlign = "left"; x.fillText(cap, ox - 60, oy + P + 84);
         return { ox, oy, tx, ty };
       };
       const C = DM.counts, N = this.subN;
