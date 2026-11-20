@@ -101,7 +101,7 @@
       const ki = KEEP.map((k) => hm.markers.indexOf(k)).filter((i) => i >= 0);
       const brW = 30, nameW = 232, hx0 = P[2] + brW + 16 + nameW, cw = (P[2] + pw - hx0) / ki.length;
       const cd8 = hm.rows.filter((r) => r.fam <= 4), cd4 = hm.rows.filter((r) => r.fam > 4), gapR = 18;
-      const rowH = Math.min(62, (bot - top - 108 - gapR) / hm.rows.length);
+      const rowH = Math.min(62, (bot - top - 108 - gapR - 26) / hm.rows.length); // 26 px reserved for the panel-4 axis labels
       x.save(); x.font = `600 19px ${FONT}`; x.fillStyle = INK; x.textAlign = "left";
       ki.forEach((mi, c) => { x.save(); x.translate(hx0 + (c + 0.5) * cw + 6, top + 82); x.rotate(-Math.PI / 2.6); x.fillText(hm.markers[mi], 0, 0); x.restore(); });
       x.restore();
