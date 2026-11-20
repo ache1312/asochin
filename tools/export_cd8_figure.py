@@ -24,6 +24,7 @@ W, H = 1300, 748
 INK, MUTED = "#152238", "#475569"
 TISSUE = ("Blood", "Tumor")
 TISSUE_COLORS = ("#c43a4b", "#176aab")
+PATIENT_COLORS = ("#4e79a7", "#f28e2b", "#59a14f", "#b07aa1", "#76b7b2", "#9c755f")
 POPS = [
     ("Naive", (14,), "#7199c3"),
     ("Central memory", (13,), "#d88a16"),
@@ -149,11 +150,49 @@ def render(flowcv, output, assistant_data=None):
     for x1, y1, x2, y2 in [(635, 16, 635, 720), (20, 404, 1280, 404)]:
         fig.add_artist(plt.Line2D([x1 / W, x2 / W], [1-y1/H, 1-y2/H],
                                   transform=fig.transFigure, color="#dbe4ed", lw=1.1))
-    heading(24, 31, "A", "CD8 cell map", "Same UMAP coordinates · phenotypes matched by marker profile")
-    heading(656, 31, "B", "PD-1 × TIM-3", "MNN-corrected signal · arcsinh display (cofactor 150)")
+    patients = sorted({p for p, _ in FILES.values()})
+    patient_of = {f: p for f, (p, _) in FILES.items()}
+    patient_idx = np.array([patients.index(patient_of[f]) for f in source])
+
+    # A · every shown CD8 cell coloured by patient, next to each sample's cell-type composition (all CD8 cells).
+    heading(24, 31, "A", "CD8 cells by patient", "UMAP coloured by patient · % of CD8 cells per sample (B blood, T tumor)")
+    ax = axes(67, 81, 240, 240)
+    ax.scatter(*xy[shown].T, s=6.0, c=np.array(PATIENT_COLORS)[patient_idx[shown]], alpha=0.7, linewidths=0)
+    ax.set(xlim=(xy[shown, 0].min() - .5, xy[shown, 0].max() + .5),
+           ylim=(xy[shown, 1].min() - .5, xy[shown, 1].max() + .5), xlabel="UMAP 1", ylabel="UMAP 2")
+    ax.set_aspect("equal", adjustable="box")
+    ax.xaxis.set_major_locator(MaxNLocator(4, integer=True))
+    ax.yaxis.set_major_locator(MaxNLocator(4, integer=True))
+    polish(ax)
+    for i, patient in enumerate(patients):
+        x, y = 48 + i % 3 * 96, 357 + i // 3 * 16
+        caption(x, y, "●", 13, PATIENT_COLORS[i])
+        caption(x + 15, y, patient, 12, MUTED)
+
+    ax = axes(370, 81, 240, 240)
+    bars = [(p, t) for p in patients for t in ("B", "T")]
+    xs = np.array([i * 2 + k * .9 for i in range(len(patients)) for k in range(2)], dtype=float)
+    bottom = np.zeros(len(bars))
+    sample_counts = np.stack([groups[:, np.isin(source, [f for f, v in FILES.items() if v == bar])].sum(axis=1) for bar in bars])
+    sample_fractions = 100 * sample_counts / sample_counts.sum(axis=1, keepdims=True)
+    for i, (_, _, color) in enumerate(POPS):
+        ax.bar(xs, sample_fractions[:, i], bottom=bottom, width=.82, color=color, edgecolor="white", linewidth=.6)
+        bottom += sample_fractions[:, i]
+    ax.set(xlim=(xs[0] - .7, xs[-1] + .7), ylim=(0, 100), yticks=[0, 25, 50, 75, 100])
+    ax.yaxis.set_major_formatter(PercentFormatter(100, decimals=0))
+    ax.set_xticks(xs)
+    ax.set_xticklabels([t for _, t in bars], fontsize=10)
+    for i, patient in enumerate(patients):
+        ax.text((xs[2 * i] + xs[2 * i + 1]) / 2, -15, patient, ha="center", va="top", fontsize=12, weight="bold",
+                color=PATIENT_COLORS[i], transform=ax.transData, clip_on=False)
+    polish(ax)
+    ax.tick_params(axis="x", length=0, pad=3)
+
+    # B · the cell map, blood and tumor on the same UMAP coordinates.
+    heading(656, 31, "B", "CD8 cell map", "Same UMAP coordinates · phenotypes matched by marker profile")
     umap_panels = []
     for j, pick in enumerate(sample):
-        ax = axes(67+j*298, 81, 240, 240)
+        ax = axes(705+j*290, 81, 240, 240)
         umap_panels.append(ax)
         ax.scatter(*xy[pick].T, s=7.0, c=colors[pick], alpha=0.73, linewidths=0)
         ax.set(xlim=(xy[shown, 0].min() - .5, xy[shown, 0].max() + .5),
@@ -163,16 +202,7 @@ def render(flowcv, output, assistant_data=None):
         ax.xaxis.set_major_locator(MaxNLocator(4, integer=True))
         ax.yaxis.set_major_locator(MaxNLocator(4, integer=True))
         polish(ax)
-        caption(187+j*298, 75, TISSUE[j], 16, TISSUE_COLORS[j], ha="center", weight="bold")
-
-        ax = axes(711+j*287, 81, 234, 240)
-        ax.scatter(*marker_data[pick].T, s=6.0, c=TISSUE_COLORS[j], alpha=0.45, linewidths=0)
-        ax.set(xlim=(lows[-2], highs[-2]), ylim=(lows[-1], highs[-1]),
-               xlabel="PD-1", ylabel="TIM-3" if j == 0 else "")
-        ax.set_xticks(*zip(*ticks[-2]))
-        ax.set_yticks(*zip(*ticks[-1]))
-        polish(ax)
-        caption(828+j*287, 75, TISSUE[j], 16, TISSUE_COLORS[j], ha="center", weight="bold")
+        caption(825+j*290, 75, TISSUE[j], 16, TISSUE_COLORS[j], ha="center", weight="bold")
 
     def legend(x0, y0, column):
         for i, (name, _, color) in enumerate(POPS):
@@ -180,8 +210,8 @@ def render(flowcv, output, assistant_data=None):
             caption(x, y, "●", 13, color)
             caption(x + 15, y, name, 12, MUTED)
 
-    legend(48, 357, 188)
-    caption(970, 378, "500 CD8 cells per FCS shown in A and B", 14, MUTED, ha="center")
+    legend(675, 357, 200)
+    caption(24, 395, "500 CD8 cells per FCS shown in the UMAPs of A and B", 12, MUTED)
 
     heading(24, 436, "C", "CD8 marker profiles", "Median signal by phenotype · all CD8 cells")
     medians = np.stack([np.median(data[mask][:, measured], axis=0) for mask in groups])

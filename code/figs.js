@@ -1336,8 +1336,8 @@
       step(n) {
         const captions = [
           "UMAP coordinates, marker measurements and population counts from the same CD8 analysis.",
+          "Cells from the six patients share one map. The bars show the cell-type composition of each blood and tumor sample.",
           "The blood and tumor UMAPs share coordinates. Colors denote eight groups matched to the study’s marker profiles.",
-          "Tumor CD8 cells form a denser cloud at higher PD-1 and TIM-3. Both tissues use the same intensity scale.",
           "The heatmap uses the median marker values for each phenotype across the saved CD8 cells.",
           "Each bar totals 100% of the pooled CD8 cells in that tissue. Blood has 34,505 cells and tumor has 34,431.",
           "Type a styling request in the Figure assistant, review it, then apply it.",

@@ -9,7 +9,7 @@
   // The page of 21 plots: a short page switch, the same request flow, a longer zoom and a final full-page hold.
   const G = { page: .5, send: 6.4, prep: 6.9, review: 7.6, apply: 10.0, zoom: 10.4, swap: 11.6, out: 14.4, end: 16.6, typeFrom: 1.1, typeTo: 5.7 };
   const CASES = [
-    { panel: 0, target: "A · Cell map", heading: "Simplify the axes", request: "On the active plot, hide axis values.", change: "Axis values", before: "Visible", after: "Hidden", affected: "1 affected plot", result: "Axis values hidden on both UMAP facets." },
+    { panel: 1, target: "B · Cell map", heading: "Simplify the axes", request: "On the active plot, hide axis values.", change: "Axis values", before: "Visible", after: "Hidden", affected: "1 affected plot", result: "Axis values hidden on both UMAP facets." },
     { panel: 2, target: "C · Marker expression", heading: "Change the heatmap palette", request: "On the active heatmap, use the magma colormap.", change: "Color palette", before: "Viridis", after: "Magma", affected: "1 affected plot", result: "Magma palette applied to panel C." },
     { panel: 2, target: "C · Marker expression", heading: "Simplify the colorbar", request: "Use Min and Max labels on the colorbar.", change: "Colorbar labels", before: "Values", after: "Min / Max", affected: "1 affected plot", result: "Min and Max labels applied to the colorbar." },
     { grid: true, target: "All plots (21)", heading: "Edit every plot at once", request: "On all plots: hide titles, bigger points and larger axis titles.", rows: [["Titles", "Shown", "Hidden"], ["Point size", "0.5", "1.5"], ["Axis titles", "13 pt", "18 pt"]], affected: "21 affected plots · 3 changes", result: "21 plots updated in one request." },
