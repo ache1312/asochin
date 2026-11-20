@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FlowCV: integrated analysis of high-dimensional flow cytometry · ASOCHIN 2026</title>
 <link rel="icon" href="assets/img/favicon.svg">
-<link rel="stylesheet" href="code/deck.css?v=20261120-figure">
+<link rel="stylesheet" href="code/deck.css?v=20261120-cd8-figure">
 <link rel="stylesheet" href="code/presenter-tools.css">
 </head>
 <body class="deck-spectral">
@@ -284,27 +284,66 @@
 
 
 
-<section class="slide guided-figure" id="s-figure" data-time="70" data-title="One CD8 analysis, four views of blood and tumor" data-guided-figure>
-  <h1>One CD8 analysis, <em>four views of blood and tumor</em></h1>
+<section class="slide guided-figure" id="s-figure" data-time="70" data-title="From CD8 analysis to a publication figure" data-guided-figure data-assistant-demo>
+  <h1>From CD8 analysis <em>to a publication figure</em></h1>
   <div class="body linked-figure-body">
     <div class="linked-figure-wrap" id="fig-map" data-panel-bounds="[[4,4,623,368],[643,4,653,368],[4,380,623,329],[643,380,653,329]]">
-      <img class="linked-figure-image" src="assets/img/cd8-linked-figure.svg" width="1300" height="748" alt="Four views of CD8 T cells from paired blood and tumor. A, UMAP by tissue. B, PD-1 by TIM-3 with a common arcsinh scale. C, phenotype medians. D, paired frequencies for five phenotypes." draggable="false">
-      <img class="figure-studio-capture" src="assets/app/cd8/fig-before.jpg" width="1600" height="1000" alt="The linked CD8 figure open in FlowCV Figure Studio." hidden draggable="false">
-      <img class="figure-studio-capture" src="assets/app/cd8/fig-after.jpg" width="1600" height="1000" alt="The same CD8 figure after its panel title was edited in Figure Studio." hidden draggable="false">
+      <img class="linked-figure-image" src="assets/img/cd8-linked-figure.svg" width="1300" height="748" alt="Four views of CD8 T cells from paired blood and tumor. A, UMAP by tissue. B, PD-1 by TIM-3 with a common arcsinh scale. C, phenotype medians. D, stacked bars comparing CD8 phenotypes in blood and tumor." draggable="false">
+      <canvas class="figure-page-final" width="3250" height="1870" role="img" aria-label="Figure Studio page with 21 scatterplots for the seven CD8 markers, after hiding plot titles and enlarging points and axis titles."></canvas>
       <div class="figure-focus" aria-hidden="true"></div>
     </div>
     <div class="col grow linked-figure-story">
-      <p class="figure-context">Six patients with matched blood and tumor.</p>
+      <p class="figure-context">Combine saved results on one page for an article.</p>
       <ol class="figure-sources">
         <li><span>A</span><div><h3>CD8 cell map</h3><p>Shared UMAP coordinates and phenotype colors.</p></div></li>
         <li><span>B</span><div><h3>PD-1 × TIM-3</h3><p>One cell per point, with matched numeric axes.</p></div></li>
         <li><span>C</span><div><h3>Marker profiles</h3><p>Median marker intensity by CD8 phenotype.</p></div></li>
-        <li><span>D</span><div><h3>Paired frequencies</h3><p>Each line connects one patient's samples.</p></div></li>
+        <li><span>D</span><div><h3>CD8 composition</h3><p>Stacked percentages for blood and tumor.</p></div></li>
       </ol>
       <p class="figure-reading" id="fig-src" aria-live="polite"></p>
+      <div class="figure-ai-result" data-step="6" tabindex="-1">
+        <p class="figure-ai-result-title">Edited with the Figure assistant</p>
+        <ul><li><b>A</b><span>Axis values hidden</span></li><li><b>C</b><span>Magma colormap</span></li><li><b>C</b><span>Min / Max colorbar labels</span></li><li><b>21</b><span>Titles hidden, larger points and axis titles: one request</span></li></ul>
+        <button class="figure-ai-replay" data-ai-replay type="button">Replay assistant demo <span aria-hidden="true">↻</span></button>
+      </div>
+      <div class="figure-export" data-step="6"><strong>Compose once, export the figure.</strong><p>PNG · SVG · PDF</p></div>
       <i class="mk" data-step="1"></i><i class="mk" data-step="2"></i><i class="mk" data-step="3"></i>
       <i class="mk" data-step="4"></i><i class="mk" data-step="5"></i><i class="mk" data-step="6"></i>
     </div>
+  </div>
+  <div class="figure-ai-demo" hidden inert role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="figure-ai-title" tabindex="-1" data-clickable>
+    <div class="figure-ai-window">
+      <header class="figure-ai-appbar">
+        <div><span class="figure-ai-brand">FlowCV</span><span class="figure-ai-app-divider" aria-hidden="true">/</span><strong id="figure-ai-title">Figure Studio</strong></div>
+        <div><span class="figure-ai-scripted">Scripted demo</span><button data-ai-finish type="button" aria-label="Close demo and show the edited figure" title="Show the edited figure (Esc)">×</button></div>
+      </header>
+      <div class="figure-ai-workspace">
+        <div class="figure-ai-page">
+          <div class="figure-ai-toolbar"><span data-ai-field="pageTitle">Page 1 · CD8 publication figure</span><span class="figure-ai-selection"><span class="figure-ai-zoomlabel" data-ai-field="zoom">Zoom 100%</span>Selected: <strong data-ai-field="workspaceTarget">A · Cell map</strong></span></div>
+          <div class="figure-ai-canvas"><div class="figure-ai-zoom"><img class="figure-ai-preview" src="assets/img/cd8-linked-figure.svg" width="1300" height="748" alt="Figure preview, updated after each scripted assistant edit."><canvas class="figure-ai-page-before" width="3250" height="1870" aria-hidden="true"></canvas><canvas class="figure-ai-page-after" width="3250" height="1870" aria-hidden="true"></canvas></div></div>
+          <div class="figure-ai-page-status"><span data-ai-field="applied">0 of 4 changes applied</span><span data-ai-field="pageCount">6,000 plotted CD8 cells · 12 FCS files</span></div>
+        </div>
+        <aside class="figure-ai-assistant" aria-label="Scripted Figure assistant">
+          <header><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v3M5.6 6.4 7.7 8.5M18.4 6.4 16.3 8.5"/><rect x="5" y="8" width="14" height="11" rx="3"/><path d="M9 13h.01M15 13h.01M10 16h4"/></svg><div><strong>Figure assistant</strong><span>Describe the change you need</span></div></header>
+          <div class="figure-ai-assistant-body">
+            <div class="figure-ai-target"><span>Target</span><strong><span data-ai-field="scope">Active plot</span> <span aria-hidden="true">⌄</span></strong><p data-ai-field="target">A · Cell map</p></div>
+            <p class="figure-ai-edit-heading" data-ai-field="heading">1 / 4 · Simplify the axes</p>
+            <div class="figure-ai-composer"><span>What would you like to change?</span><div class="figure-ai-request" role="textbox" aria-label="Animated request" aria-readonly="true" data-ai-field="request"></div></div>
+            <div class="figure-ai-feedback">
+              <p class="figure-ai-instructions">Describe one appearance change, then review it before applying.</p>
+              <p class="figure-ai-preparing" hidden>Preparing changes…</p>
+              <div class="figure-ai-review" hidden><p data-ai-field="affected">1 affected plot</p><div class="figure-ai-review-table"><div><span>Change</span><span>Current</span><span>Proposed</span></div><div class="figure-ai-review-rows" data-ai-rows><div><strong>Axis values</strong><span>Visible</span><strong>Hidden</strong></div></div></div></div>
+              <div class="figure-ai-success" hidden><span aria-hidden="true">✓</span><strong>Changes applied</strong><p data-ai-field="result">Panel A updated.</p></div>
+            </div>
+            <div class="figure-ai-action"><span class="figure-ai-action-button" data-ai-review aria-hidden="true">Review changes <span>→</span></span><span class="figure-ai-action-button" data-ai-apply hidden aria-hidden="true">Apply changes</span></div>
+          </div>
+        </aside>
+      </div>
+      <footer class="figure-ai-playback"><button data-ai-pause type="button" aria-label="Pause demo (K)">Pause</button><div class="figure-ai-progress" role="progressbar" aria-label="Demo playback" aria-valuemin="0" aria-valuemax="46" aria-valuenow="0"><i></i></div><span data-ai-field="time">0:00 / 0:46</span><button data-ai-finish type="button">Show result</button></footer>
+      <svg class="figure-ai-pointer" viewBox="0 0 28 34" width="28" height="34" aria-hidden="true"><path d="M3 2 L3 27 L10 21 L16 32 L21 29 L15 18 L24 17 Z" fill="#0f172a" stroke="#f8fafc" stroke-width="2" stroke-linejoin="round"/></svg>
+    </div>
+    <p class="figure-ai-accessible-status" data-ai-field="status" aria-live="polite"></p>
+    <ol class="figure-ai-stages" aria-label="Demo edits: choose one to review it"><li><button type="button" data-ai-stage="0" title="Play edit 1 (← / → step between edits)">A · Hide axis values</button></li><li><button type="button" data-ai-stage="1" title="Play edit 2 (← / → step between edits)">C · Magma</button></li><li><button type="button" data-ai-stage="2" title="Play edit 3 (← / → step between edits)">C · Min / Max</button></li><li><button type="button" data-ai-stage="3" title="Play edit 4 (← / → step between edits)">All 21 plots · 3 changes</button></li></ol>
   </div>
   <div class="foot"><span class="src"></span><span class="num"></span></div>
 </section>
@@ -320,7 +359,7 @@
     </div>
     <div class="col grow chaps tour-side">
       <div class="chap"><b>1</b><div><h3>Shared analysis</h3><p>A collaborator opens the workflow for the 12 CD8 FCS files with read access.</p></div></div>
-      <div class="chap"><b>2</b><div><h3>Saved figure</h3><p>The same four CD8 panels and edited title are available in Figure Studio.</p></div></div>
+      <div class="chap"><b>2</b><div><h3>Saved figure</h3><p>The same four CD8 panels are available in Figure Studio.</p></div></div>
       <div class="chap"><b>3</b><div><h3>Exported figure</h3><p>Download the figure generated by FlowCV.</p></div></div>
       <p class="tour-bridge" data-step="3"><a href="assets/app/cd8/cd8-figure.pdf" download>PDF figure</a> · <a href="assets/app/cd8/cd8-figure.pptx" download>PowerPoint</a></p>
       <i class="mk" data-step="1"></i><i class="mk" data-step="2"></i>
@@ -449,17 +488,35 @@
 
 <section class="slide acknowledgements" id="s-ack" data-time="20" data-title="Acknowledgements">
   <h1>Acknowledgements</h1>
-  <p class="ack-patients">Thank you to the patients who contributed <em>blood and tumor samples</em> and made this research possible.</p>
+  <p class="ack-patients">We thank the patients who made this study possible by contributing blood and tumor samples.</p>
+  <div class="ack-team">
+    <h2>With thanks to the Immunoncology Laboratory</h2>
+    <ul class="ack-portraits" aria-label="Coauthors">
+      <li><img src="assets/img/ack/catalina-bustamante.webp" alt=""><span>Catalina Bustamante</span></li>
+      <li><img src="assets/img/ack/andres-hernandez.webp" alt=""><span>Andrés Hernández Oliveras</span></li>
+      <li><img src="assets/img/ack/juan-pablo-vega.webp" alt=""><span>Juan Pablo Vega</span></li>
+      <li><img src="assets/img/ack/daniela-malave.webp" alt=""><span>Daniela Malavé</span></li>
+      <li><img src="assets/img/ack/felipe-ardiles.webp" alt=""><span>Felipe Ardiles</span></li>
+      <li><img src="assets/img/ack/juan-pablo-saavedra.webp" alt=""><span>Juan Pablo Saavedra</span></li>
+      <li><img src="assets/img/ack/ximena-lopez.webp" alt=""><span>Ximena López</span></li>
+      <li><img src="assets/img/ack/sofia-hidalgo.webp" alt=""><span>Sofía Hidalgo</span></li>
+      <li><img src="assets/img/ack/alvaro-lladser.webp" alt=""><span>Álvaro Lladser</span></li>
+    </ul>
+  </div>
   <div class="ack-support">
+    <div class="ack-logos">
+      <img class="ack-anid" src="assets/img/ack/anid.png" alt="Ministerio de Ciencia and ANID">
+      <img class="ack-centro" src="assets/img/ack/centro-ciencia-vida.png" alt="Centro Ciencia &amp; Vida">
+    </div>
     <div>
       <h2>Research funding</h2>
-      <p><strong>Centro Ciencia &amp; Vida</strong> · ANID Basal FB210008</p>
-      <p><strong>ANID FONDECYT</strong> · 1212070, 11190897, 3220788, 3230650</p>
+      <p>ANID Basal FB210008 · Centro Ciencia &amp; Vida</p>
+      <p>ANID FONDECYT 1212070, 11190897, 3220788, 3230650</p>
     </div>
     <div>
       <h2>Spectral cytometry</h2>
-      <p><strong>Laboratorio de Inmunología, Universidad de Chile</strong></p>
-      <p>Access to the Aurora spectral cytometer · ANID FONDEQUIP EQM220027</p>
+      <p>Laboratorio de Inmunología, Universidad de Chile</p>
+      <p>Aurora spectral cytometer · ANID FONDEQUIP EQM220027</p>
     </div>
   </div>
   <div class="foot"><span class="src"></span><span class="num"></span></div>
@@ -542,9 +599,11 @@ window.PRESENTER = {
 <script src="data/spectral.js"></script>
 <script src="data/spectral-rcc.js"></script>
 <script src="data/rcc-dims.js"></script>
+<script src="data/cd8-figure-markers.js"></script>
+<script src="code/figure-assistant-demo.js?v=20261120-cd8-figure"></script>
 <script src="data/rcc-cd8-umap-detail.js"></script>
 <script src="code/point-cloud.js"></script>
-<script src="code/figs.js?v=20261120-figure"></script>
+<script src="code/figs.js?v=20261120-cd8-figure"></script>
 <script src="data/rcc-patients.js"></script>
 <script src="data/rcc-cd8-umap.js"></script>
 <script src="data/rcc-cd8-umap-12k.js"></script>

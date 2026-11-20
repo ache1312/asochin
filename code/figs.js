@@ -1312,21 +1312,20 @@
         const figureWidth = +image.getAttribute("width"), figureHeight = +image.getAttribute("height");
         this.bounds = JSON.parse(map.dataset.panelBounds).map(([x, y, w, h]) =>
           [100 * x / figureWidth, 100 * y / figureHeight, 100 * w / figureWidth, 100 * h / figureHeight]);
-        this.image = image;
-        this.captures = [...map.querySelectorAll(".figure-studio-capture")];
+        if (el.hasAttribute("data-assistant-demo")) {
+          this.demo = new window.FlowCVFigureAssistantDemo(el, () => window.DECK.go(window.DECK.slides.indexOf(el), 6));
+        }
       },
       step(n) {
         const captions = [
-          "68,936 CD8 T cells from 12 FCS files in the kidney study.",
+          "UMAP coordinates, marker measurements and population counts from the same CD8 analysis.",
           "Both tissues use the same saved CD8 UMAP. The figure shows 500 cells per FCS in panels A and B.",
           "The tumor plot shows a denser cloud of CD8 cells with higher PD-1 and TIM-3 on the same marker scales.",
           "The heatmap uses the median marker values for each phenotype across the saved CD8 cells.",
-          "Each frequency uses the CD8 cells in that FCS. Median resident memory is 5.7% in blood and 38.9% in tumor.",
-          "Open the CD8 figure in FlowCV Figure Studio.",
-          "The panel title was edited and saved in Figure Studio. The next slide shows the shared layout and export.",
+          "Each bar totals 100% of the pooled CD8 cells in that tissue. Blood has 34,505 cells and tumor has 34,431.",
+          "Type a styling request in the Figure assistant, review it, then apply it.",
+          "The second page shows all 21 CD8 marker pairs after the same formatting changes were applied together.",
         ];
-        this.image.hidden = n >= 5;
-        this.captures.forEach((capture, i) => { capture.hidden = n !== 5 + i; });
         const k = n >= 1 && n <= 4 ? n - 1 : -1;
         this.rows.forEach((row, i) => row.classList.toggle("is-current", i === k));
         this.focus.hidden = k < 0;
@@ -1335,7 +1334,9 @@
           Object.assign(this.focus.style, { left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` });
         }
         this.out.textContent = captions[Math.min(n, captions.length - 1)];
+        this.demo?.step(n);
       },
+      leave() { this.demo?.close(); },
     };
   }
 

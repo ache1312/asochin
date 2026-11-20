@@ -4,6 +4,7 @@ Run from the deck with: python3 tools/export_cd8_figure.py /path/to/flowcv
 """
 
 import argparse
+import base64
 import gzip
 import json
 import re
@@ -57,7 +58,7 @@ def explicit_scatter_points(svg):
     return ET.tostring(root, encoding="unicode")
 
 
-def render(flowcv, output):
+def render(flowcv, output, assistant_data=None):
     analysis = flowcv / "output/rcc-reanalysis-2026-11-10"
     sys.path.insert(0, str(analysis))
     from reanalysis_common import FEATURES36, FILES
@@ -83,13 +84,13 @@ def render(flowcv, output):
     colors = np.full(len(source), "#aeb9c7")
     for mask, (_, _, color) in zip(groups, POPS):
         colors[mask] = color
-    patients = sorted({p for p, _ in FILES.values()})
-    paired = np.array([[100 * groups[:, source == f].mean(axis=1)
-                        for tissue in ('B', 'T')
-                        for f, meta in FILES.items() if meta == (patient, tissue)]
-                       for patient in patients])
-    assert paired.shape == (6, 2, len(POPS))
-    print({pop[0]: np.median(paired[:, :, i], axis=0).round(2).tolist() for i, pop in enumerate(POPS)})
+    tissue_masks = [np.isin(source, [f for f, (_, t) in FILES.items() if t == tissue]) for tissue in ('B', 'T')]
+    composition = np.vstack([groups, ~groups.any(axis=0)])
+    counts = np.stack([composition[:, mask].sum(axis=1) for mask in tissue_masks])
+    totals = counts.sum(axis=1)
+    np.testing.assert_array_equal(totals, [mask.sum() for mask in tissue_masks])
+    fractions = 100 * counts / totals[:, None]
+    print('Blood and tumor composition (%):', fractions.round(2).tolist())
 
     rng = np.random.default_rng(7)
     sample = []
@@ -101,7 +102,7 @@ def render(flowcv, output):
     shown = np.concatenate(sample)
     marker_data = data[:, measured[-2:]]
     print("Displayed scatter ranges", marker_data[shown].min(axis=0), marker_data[shown].max(axis=0))
-    print("Full CD8 count per tissue", [int(np.isin(source, [f for f, (_, t) in FILES.items() if t == tissue]).sum()) for tissue in ('B', 'T')])
+    print("Full CD8 count per tissue", totals.tolist())
 
     plt.rcParams.update({"svg.fonttype": "none", "svg.hashsalt": "asochin-cd8-figure",
                          "font.family": "DejaVu Sans", "font.size": 13,
@@ -131,8 +132,10 @@ def render(flowcv, output):
                                   transform=fig.transFigure, color="#dbe4ed", lw=1.1))
     heading(24, 31, "A", "CD8 cell map", "Saved UMAP coordinates · same view in both tissues")
     heading(656, 31, "B", "PD-1 × TIM-3", "Single-cell expression · MNN-corrected arcsinh scale")
+    umap_panels = []
     for j, pick in enumerate(sample):
         ax = axes(66+j*277, 93, 204, 204)
+        umap_panels.append(ax)
         ax.scatter(*xy[pick].T, s=3.0, c=colors[pick], alpha=0.62, linewidths=0)
         ax.set(xlim=(xy[shown, 0].min() - .5, xy[shown, 0].max() + .5),
                ylim=(xy[shown, 1].min() - .5, xy[shown, 1].max() + .5),
@@ -162,10 +165,12 @@ def render(flowcv, output):
     medians = np.stack([np.median(data[mask][:, measured], axis=0) for mask in groups])
     ax = axes(160, 458, 382, 203)
     heat = ax.imshow(medians, cmap="viridis", aspect="auto", interpolation="nearest")
+    heat_labels = []
     for i, row in enumerate(medians):
         for j, value in enumerate(row):
-            ax.text(j, i, f"{value:.1f}", ha="center", va="center", fontsize=12,
-                    color="white" if heat.norm(value) < .5 else "#0f172a")
+            label = ax.text(j, i, f"{value:.1f}", ha="center", va="center", fontsize=12,
+                            color="white" if heat.norm(value) < .5 else "#0f172a")
+            heat_labels.append((value, label))
     ax.set_xticks(range(len(MARKERS)))
     ax.set_xticklabels(MARKERS, rotation=35, ha="right", fontsize=12)
     ax.set_yticks(range(len(POPS)))
@@ -173,46 +178,76 @@ def render(flowcv, output):
     ax.tick_params(length=0, pad=7)
     for edge in ax.spines.values():
         edge.set_visible(False)
-    fig.colorbar(heat, cax=axes(559, 458, 12, 203))
+    colorbar = fig.colorbar(heat, cax=axes(559, 458, 12, 203))
 
-    heading(656, 411, "D", "CD8 frequencies by tissue", "Six matched patients · percentage of CD8 cells per FCS")
-    names = ("Naive", "Central\nmemory", "Effector", "Resident\nmemory", "Resident\nexhausted")
-    limit = min(100, 20 * np.ceil(np.max(paired) / 20))
-    for i, (name, values) in enumerate(zip(names, paired.transpose(2, 0, 1))):
-        ax = axes(713+i*110, 482, 90, 193)
-        for j, pair in enumerate(values):
-            offset = (j - 2.5) * .022
-            ax.plot([offset, 1 + offset], pair, color="#a1afbf", lw=1, alpha=.85)
-            ax.scatter([offset, 1 + offset], pair, s=29, c=TISSUE_COLORS, linewidths=.4, edgecolors="white", zorder=3)
-        ax.set(xlim=(-.24, 1.24), ylim=(-.04 * limit, limit), xticks=[0, 1],
-               yticks=[v for v in range(0, int(limit)+1, 20)])
-        ax.yaxis.set_major_formatter(PercentFormatter(100, decimals=0))
-        ax.set_xticklabels(TISSUE)
-        ax.grid(axis="y", color="#e2e8f0", lw=.8)
-        polish(ax)
-        ax.tick_params(axis="both", labelsize=10)
-        if i:
-            ax.set_yticklabels([])
-        for label, color in zip(ax.get_xticklabels(), TISSUE_COLORS):
-            label.set_color(color)
-        caption(758+i*110, 465, name, 13, POPS[i][2], ha="center", weight="bold", linespacing=1.02)
+    heading(656, 411, "D", "CD8 composition by tissue", "Percentage of CD8 cells pooled within each tissue")
+    ax = axes(760, 466, 489, 159)
+    left = np.zeros(2)
+    y = [1, 0]
+    for i, (_, _, color) in enumerate(POPS + [("Other CD8", (), "#aeb9c7")]):
+        ax.barh(y, fractions[:, i], left=left, height=.54, color=color, edgecolor="white", linewidth=.9)
+        for j, fraction in enumerate(fractions[:, i]):
+            if fraction >= 7:
+                ax.text(left[j] + fraction / 2, y[j], f"{fraction:.0f}%", ha="center", va="center",
+                        fontsize=13, weight="bold", color="#0f172a" if i in (0, 1, 5) else "white")
+        left += fractions[:, i]
+    ax.set(xlim=(0, 100), ylim=(-.48, 1.48), xticks=[0, 25, 50, 75, 100], yticks=y)
+    ax.set_yticklabels(TISSUE)
+    ax.xaxis.set_major_formatter(PercentFormatter(100, decimals=0))
+    polish(ax)
+    ax.spines["left"].set_visible(False)
+    ax.tick_params(axis="y", length=0, pad=13, labelsize=16)
+    for label, color in zip(ax.get_yticklabels(), TISSUE_COLORS):
+        label.set_color(color)
+        label.set_fontweight("bold")
+    for i, (name, _, color) in enumerate(POPS + [("Other CD8", (), "#aeb9c7")]):
+        x, y = 675 + i % 3 * 200, 674 + i // 3 * 20
+        caption(x, y, "●", 13, color)
+        caption(x + 16, y, name, 12, MUTED)
     caption(24, 730, "ccRCC paired blood and tumor study · 68,936 CD8 T cells · saved FlowCV analysis", 13, MUTED)
-    fig.savefig(output, format="svg", metadata={"Title": "CD8 T cells in paired blood and tumor",
-                "Description": "Saved FlowCV analysis " + RUN, "Date": None})
+
+    def write_figure(path):
+        fig.savefig(path, format="svg", metadata={"Title": "CD8 T cells in paired blood and tumor",
+                    "Description": "Saved FlowCV analysis " + RUN, "Date": None})
+        svg = path.read_text()
+        svg = re.sub(r'width="(?:1300|1300\.0)pt" height="(?:748|748\.0)pt"', 'width="1300" height="748"', svg, count=1)
+        svg = re.sub(r'<!DOCTYPE svg[^>]*>\s*', '', svg, count=1)
+        # Keep provenance in an SVG element compatible with Figure Studio's vector export.
+        svg = re.sub(r'<metadata>[\s\S]*?</metadata>',
+                     f'<desc>Saved FlowCV analysis {RUN}. Paired CD8 study with 6 patients and 12 files.</desc>',
+                     svg, count=1)
+        path.write_text(explicit_scatter_points(svg))
+
+    write_figure(output)
+    if assistant_data is not None:
+        for panel in umap_panels:
+            panel.tick_params(axis="both", labelbottom=False, labelleft=False, length=0)
+        write_figure(output.with_name("cd8-linked-figure-ai-1.svg"))
+        heat.set_cmap("magma")
+        for value, label in heat_labels:
+            r, g, b, _ = heat.cmap(heat.norm(value))
+            label.set_color("#0f172a" if .2126*r + .7152*g + .0722*b > .52 else "white")
+        write_figure(output.with_name("cd8-linked-figure-ai-2.svg"))
+        colorbar.set_ticks(heat.get_clim(), labels=["Min", "Max"])
+        write_figure(output.with_name("cd8-linked-figure-ai-final.svg"))
+
+        # The 21 marker pairs use the same individual CD8 cells as the first figure page.
+        values = data[shown][:, measured].astype("<f4")
+        display = {
+            "markers": MARKERS, "n": len(values),
+            "lo": np.floor(values.min(axis=0)).astype(int).tolist(),
+            "hi": np.ceil(values.max(axis=0)).astype(int).tolist(),
+            "v": base64.b64encode(values.tobytes()).decode("ascii"),
+        }
+        assistant_data.write_text("// Generated by tools/export_cd8_figure.py. Values are little-endian Float32.\n"
+                                  "window.DECK_FIGURE_CD8 = " + json.dumps(display, separators=(",", ":")) + ";\n")
     plt.close(fig)
-    svg = output.read_text()
-    svg = re.sub(r'width="(?:1300|1300\.0)pt" height="(?:748|748\.0)pt"', 'width="1300" height="748"', svg, count=1)
-    svg = re.sub(r'<!DOCTYPE svg[^>]*>\s*', '', svg, count=1)
-    # Use native SVG metadata so the figure remains vector when imported and exported in Figure Studio.
-    svg = re.sub(r'<metadata>[\s\S]*?</metadata>',
-                 f'<desc>Saved FlowCV analysis {RUN}. Paired CD8 study with 6 patients and 12 files.</desc>',
-                 svg, count=1)
-    output.write_text(explicit_scatter_points(svg))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("flowcv", type=Path)
     parser.add_argument("--output", type=Path, default=Path("assets/img/cd8-linked-figure.svg"))
+    parser.add_argument("--assistant-data", type=Path, help="Write the scripted demo's marker data and three SVG edit states.")
     args = parser.parse_args()
-    render(args.flowcv, args.output)
+    render(args.flowcv, args.output, args.assistant_data)
