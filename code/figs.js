@@ -180,7 +180,7 @@
   FIGS["s-title"] = {
     init(el) {
       el.querySelector("#presenter-line").innerHTML = (window.PRESENTER || {}).line || "";
-      this.v = cd8Map(el.querySelector("#title3d"), { cx: 1560, cy: 560, scale: 380, radius: 1.45, alpha: 0.86, auto: 0.0016, yaw: 0.9, pitch: -0.3, palette: CT_COL }, window.DECK_RCC_UMAP_DETAIL);
+      this.v = cd8Map(el.querySelector("#title3d"), { cx: 1430, cy: 510, scale: 440, radius: 1.45, alpha: 0.86, auto: 0.0016, yaw: 0.9, pitch: -0.3, palette: CT_COL }, window.DECK_RCC_UMAP_DETAIL);
     },
     enter() { this.v.start(); }, leave() { this.v.stop(); },
   };
