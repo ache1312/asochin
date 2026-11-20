@@ -970,17 +970,18 @@ p .saved { margin: 0 8px 0 0; }
 #s-concl .cc3-road h3::before { content: "→ "; color: var(--blue); }
 #s-concl .cc3-road p { font-size: 22px; line-height: 1.35; color: var(--ink-2); margin: 0; }
 .acknowledgements { padding-inline: 120px; }
-.ack-main { display: grid; grid-template-columns: 640px minmax(0, 1fr); align-items: start; gap: 80px; margin-top: 30px; }
+.ack-main { display: grid; grid-template-columns: 640px minmax(0, 1fr); align-items: end; gap: 80px; margin-top: 30px; }
 .ack-opening h1 { font-size: 74px; font-weight: 600; margin: 0; }
 .ack-opening p { max-width: 630px; margin: 20px 0 0; color: var(--ink-2); font-size: 29px; line-height: 1.36; text-wrap: pretty; }
 .ack-place { margin: 28px 0 0; }
 .ack-place img { display: block; width: 640px; height: 318px; object-fit: cover; object-position: 50% 42%; border-radius: 12px; }
 .ack-place figcaption { margin-top: 10px; font-size: 18px; color: var(--muted); }
-.ack-team h2 { margin: 14px 0 30px; font-size: 28px; font-weight: 600; }
-.ack-portraits { display: grid; grid-template-columns: repeat(5, 152px); justify-content: space-between; gap: 26px 0; margin: 0; padding: 0; list-style: none; }
+.ack-team h2 { margin: 0; font-size: 30px; font-weight: 600; }
+.ack-team-sub { margin: 4px 0 26px; font-size: 21px; color: var(--muted); }
+.ack-portraits { display: grid; grid-template-columns: repeat(5, 164px); justify-content: space-between; gap: 22px 0; margin: 0; padding: 0; list-style: none; }
 .ack-portraits li { display: grid; justify-items: center; align-content: start; gap: 12px; text-align: center; color: var(--ink-2); font-size: 21px; line-height: 1.2; }
-.ack-portraits img { width: 152px; height: 152px; border-radius: 8px; object-fit: cover; object-position: 50% 32%; }
-.ack-portraits span { width: 196px; margin-inline: -22px; text-wrap: balance; }
+.ack-portraits img { width: 164px; height: 164px; border-radius: 8px; object-fit: cover; object-position: 50% 32%; }
+.ack-portraits span { width: 200px; margin-inline: -18px; text-wrap: balance; }
 .ack-support { display: grid; grid-template-columns: 640px minmax(0, 1fr); align-items: start; gap: 26px 80px; margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--line-2); }
 .ack-support h2 { margin: 0 0 6px; font-size: 22px; font-weight: 600; }
 .ack-support p { margin: 2px 0 0; color: var(--muted); font-size: 20px; line-height: 1.35; }
