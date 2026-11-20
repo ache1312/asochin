@@ -982,6 +982,9 @@ p .saved { margin: 0 8px 0 0; }
 .ack-clinic img { flex: none; width: 98px; height: 98px; border-radius: 5px; object-fit: cover; object-position: 50% 30%; }
 .ack-clinic div { display: grid; gap: 2px; font-size: 20px; color: var(--muted); }
 .ack-clinic strong { font-size: 22px; font-weight: 600; color: var(--ink-2); }
+.ack-clinic .ack-hblt { width: auto; height: 52px; margin-top: 8px; object-fit: contain; border-radius: 0; }
+.rcc-source { display: flex; align-items: center; gap: 14px; margin-top: 14px; color: var(--muted); font-size: 18px; letter-spacing: .04em; text-transform: uppercase; }
+.rcc-source img { height: 50px; width: auto; }
 .ack-support { display: grid; grid-template-columns: 304px 1fr 1fr; align-items: center; gap: 62px; margin-top: 83px; padding-top: 32px; border-top: 1px solid var(--line-2); }
 .ack-support h2 { margin: 0 0 9px; font-size: 24px; font-weight: 600; }
 .ack-support p { margin: 4px 0 0; color: var(--muted); font-size: 22px; line-height: 1.35; }
