@@ -731,6 +731,11 @@
       const C = DM.counts, set = (id, t) => { const e = el.querySelector(id); if (e) e.textContent = t; };
       set("#dims-n-ex", nf(C.exh)); set("#dims-p-ex", pct(C.exh / C.cd8, 0)); set("#dims-ex-tem", nf(C.exh_tem)); set("#dims-p-tem", pct(C.exh_tem / C.exh, 0));
       el.querySelector("#dims-bars").innerHTML = MS.map((m) => { const p = m.n * (m.n - 1) / 2; return `<div class="pb${m.me ? " me" : ""}"><span>${m.y}</span><span>${m.n === 2 ? "1–2" : m.n}</span><span class="pt"><i style="--w:${Math.max(0.8, p / 1225 * 100).toFixed(1)}%"></i></span><b>${nf(p)}</b></div>`; }).join("");
+      // 19 Nov 2026 (user: "show the selected examples much larger"): the selected plots, enlarged next to the matrix (clicks 1–2)
+      this.z = el.querySelector("#dims-zoom"); this.zw = el.querySelector("#dims-zoom-wrap");
+      { const u = (i, j) => DM.V[i * DM.k + j] / 255, hi = (i, j) => u(i, j) > DM.thr[j]; const c = { naive: 0, Tcm: 0, Tem: 0, Temra: 0 };
+        for (let i = 0; i < DM.n; i++) if (DM.F[i] & 2) { const t = this.SUB.find((t) => hi(i, 2) === t.ccr7 && hi(i, 3) === t.ro); c[t.name]++; }
+        this.subN = c; }
       this.cache = new Map(); this.st = { s: 0, gd: 0 }; this.tg = { s: 0, gd: 0 }; this.draw();
     },
     enter() {
@@ -743,7 +748,11 @@
       requestAnimationFrame(loop);
     },
     leave() { this.active = false; },
-    step(n) { this.tg = { s: n >= 1 ? 1 : 0, gd: n >= 2 ? 1 : 0 }; if (STATE.printing || !this.active) this.st = { ...this.tg }; this.draw(); },
+    step(n) {
+      this.tg = { s: n >= 1 ? 1 : 0, gd: n >= 2 ? 1 : 0 }; if (STATE.printing || !this.active) this.st = { ...this.tg };
+      if (this.zw) { this.zw.classList.toggle("on", n >= 1 && n <= 2); this.zw.classList.toggle("gone", n >= 3); }
+      this.draw();
+    },
     lay(W, H) { const n = DM.k - 1, gap = 5, s = Math.min((W - 96) / n, (H - 52) / n) - gap; return { n, gap, s, L0: 88 + (W - 96 - n * (s + gap)) / 2, T0: 20 }; },
     at(L, q, r) { return [L.L0 + q * (L.s + L.gap), L.T0 + (r - 1) * (L.s + L.gap)]; },
     // grey density (darker = more cells), then each layer in its colour. only: draw just the cells with that bit (a gated view).
@@ -812,6 +821,7 @@
         }
         x.textAlign = "left"; x.globalAlpha = 1;
       }
+      this.drawZoom();
       if (G > 0) { // exhausted CD8 T cells, in a plot the strategy never opens
         const [ox, oy] = this.at(L, ...this.HID); x.globalAlpha = G;
         x.strokeStyle = "#7c3aed"; x.lineWidth = 3.5; x.strokeRect(ox - 1, oy - 1, s + 2, s + 2);
@@ -822,6 +832,55 @@
         x.fillStyle = "#6d28d9"; x.textAlign = "left"; x.fillText(txt, tx, ty + 20); x.font = "600 16px 'Source Sans 3'"; x.fillText(OUT, tx, ty + 44);
         x.globalAlpha = 1;
       }
+    },
+    // the selected plots at ~3.5× the matrix size: click 1 = the strategy (①, ②); click 2 = ② and the plot it never opens
+    drawZoom() {
+      if (!this.z) return;
+      const x = ctxOf(this.z), [W, H] = cssSize(this.z), { s: S, gd: G } = this.st; x.clearRect(0, 0, W, H);
+      if (S <= 0) return;
+      const P = 372, X0 = [46, W - P - 6], Y0 = 52, F = "'Source Sans 3'";
+      const u = (i, j) => DM.V[i * DM.k + j] / 255, hi = (i, j) => u(i, j) > DM.thr[j], cd8 = (i) => DM.F[i] & 2;
+      const L4 = { bit: 1, color: BLUE }, L8 = { bit: 2, color: PINK }, LX = { bit: 4, color: PURPLE }, LG = { key: "g8", color: "#d6d9e0", test: cd8 };
+      const LS = this.SUB.map((t) => ({ key: "s" + t.name, color: t.color, test: (i) => cd8(i) && hi(i, 2) === t.ccr7 && hi(i, 3) === t.ro }));
+      const nfmt = (v) => nf(v), pc = (v) => pct(v, 0);
+      const halo = (t, X, Y, col, al = "left", font = `800 22px ${F}`) => { x.font = font; x.textAlign = al; x.lineJoin = "round"; x.lineWidth = 5; x.strokeStyle = "rgba(255,255,255,.95)"; x.strokeText(t, X, Y); x.fillStyle = col; x.fillText(t, X, Y); };
+      const panel = (k, q, r, layers, only, title, tcol, badge, frame, cap, capCol) => {
+        const ox = X0[k], oy = Y0;
+        x.drawImage(this.panel(q, r, P, layers, only), ox, oy, P, P);
+        const tx = ox + 2 + DM.thr[q] * (P - 4), ty = oy + P - 2 - DM.thr[r] * (P - 4);
+        x.strokeStyle = frame; x.lineWidth = 1.8; x.setLineDash([7, 5]); x.beginPath(); x.moveTo(tx, oy); x.lineTo(tx, oy + P); x.moveTo(ox, ty); x.lineTo(ox + P, ty); x.stroke(); x.setLineDash([]);
+        x.strokeStyle = frame; x.lineWidth = 3.5; x.strokeRect(ox - 1, oy - 1, P + 2, P + 2);
+        // badge + title
+        x.fillStyle = frame; x.beginPath(); x.arc(ox + 14, oy - 26, 15, 0, 7); x.fill(); x.fillStyle = "#fff"; x.font = `800 18px ${F}`; x.textAlign = "center"; x.fillText(badge, ox + 14, oy - 20);
+        x.fillStyle = tcol; x.font = `800 24px ${F}`; x.textAlign = "left"; x.fillText(title, ox + 38, oy - 18);
+        // axes
+        x.font = `700 20px ${F}`; x.textAlign = "center"; x.fillStyle = DCOL[q]; x.fillText(DM.markers[q] + " →", ox + P / 2, oy + P + 26);
+        x.save(); x.translate(ox - 14, oy + P / 2); x.rotate(-Math.PI / 2); x.fillStyle = DCOL[r]; x.fillText(DM.markers[r] + " →", 0, 0); x.restore();
+        x.font = `700 20px ${F}`; x.fillStyle = capCol; x.textAlign = "left"; x.fillText(cap, ox, oy + P + 60);
+        return { ox, oy, tx, ty };
+      };
+      const C = DM.counts, N = this.subN;
+      const quad = (o, grey) => { // subset names and their share of CD8 T, in each quadrant of ②
+        const T = Object.fromEntries(this.SUB.map((t) => [t.name, t])), col = (t) => grey ? "#94a3b8" : T[t].color, lab = (t) => `${t} ${pc(N[t] / C.cd8)}`;
+        halo(lab("Tem"), o.ox + 10, o.oy + 30, col("Tem")); halo(lab("Tcm"), o.ox + P - 10, o.oy + 30, col("Tcm"), "right");
+        halo(lab("Temra"), o.ox + 10, o.oy + P - 14, col("Temra")); halo(lab("naive"), o.ox + P - 10, o.oy + P - 14, col("naive"), "right");
+      };
+      if (G < 1) { // click 1: the strategy
+        x.globalAlpha = S * (1 - G);
+        const a = panel(0, 0, 1, [L4, L8], 0, "CD4 × CD8 · all T cells", "#0f172a", "1", "#1d4ed8", `CD8 T cells: ${nfmt(C.cd8)}`, "#be185d");
+        x.strokeStyle = "#0f172a"; x.lineWidth = 2.6; x.strokeRect(a.ox + 5, a.oy + 5, a.tx - a.ox - 10, a.ty - a.oy - 10);
+        halo("CD8 T", a.ox + 14, a.oy + 32, "#be185d"); halo("CD4 T", a.ox + P - 12, a.oy + P - 16, "#1d4ed8", "right");
+        const b = panel(1, 2, 3, LS, 2, "CCR7 × CD45RO · CD8 T", "#0f172a", "2", "#1d4ed8", "naive and memory subsets", "#475569");
+        quad(b, false);
+      }
+      if (G > 0) { // click 2: the exhausted CD8 T cells, in ② and in a plot the strategy never opens
+        x.globalAlpha = G;
+        const b = panel(0, 2, 3, [LG, LX], 2, "CCR7 × CD45RO · CD8 T", "#0f172a", "2", "#1d4ed8", `${nfmt(C.exh_tem)} of them in Tem (${pc(C.exh_tem / C.exh)})`, "#6d28d9");
+        quad(b, true);
+        const h = panel(1, 4, 5, [L8, LX], 2, "PD-1 × TIM-3 · never opened", "#6d28d9", "!", "#7c3aed", `exhausted CD8: ${nfmt(C.exh)} (${pc(C.exh / C.cd8)} of CD8)`, "#6d28d9");
+        halo("exhausted", h.ox + P - 10, h.oy + 30, "#6d28d9", "right");
+      }
+      x.globalAlpha = 1; x.textAlign = "left";
     },
   };
 

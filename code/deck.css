@@ -1054,3 +1054,8 @@ p .saved { margin: 0 8px 0 0; }
 /* drag ghost for the chain slide (11 Nov 2026): stands in for the browser drag image of a module */
 .tour-ghost { position: absolute; left: 0; top: 0; z-index: 3; padding: 6px 12px; border-radius: 8px; background: rgba(255,255,255,.95); border: 1.5px dashed #2563eb; box-shadow: 0 8px 20px rgba(15,23,42,.18); font: 600 15px 'Source Sans 3', sans-serif; color: #1e3a8a; white-space: nowrap; opacity: 0; pointer-events: none; transition: left .75s cubic-bezier(.4,0,.2,1), top .75s cubic-bezier(.4,0,.2,1), opacity .2s; }
 .tour-ghost.on { opacity: .95; }
+/* slide 4 (19 Nov 2026): the selected plots, enlarged next to the matrix at clicks 1–2 */
+.dims-zoom { opacity: 0; transition: opacity .35s ease; margin-top: 4px; }
+.dims-zoom.on { opacity: 1; }
+.dims-zoom.gone { display: none; }
+@media print { .dims-zoom { display: none; } }
