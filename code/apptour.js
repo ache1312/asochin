@@ -383,7 +383,9 @@
         { img: "thesis/gt-by-fcs-statistics.jpg", cam: [952, 416, 1.18], cur: null, ring: [[332, 685, 1243, 42]], cap: "<b>One row per FCS.</b> In P5 tumor the same 4,234 cells are 73.62% of CD8 T cells and 36.81% of the input." },
       ],
       [
-        { cur: [348, 91], cam: [615, 350, 1.16], ring: null, cap: "Return to <b>Plots</b> for the combined view.", hold: 950 },
+        { cur: [348, 91], cam: [615, 350, 1.16], ring: null, cap: "Return to <b>Plots</b>.", hold: 950 },
+        { tap: true, hold: 350 },
+        { img: "thesis/gt-by-fcs.jpg", cam: FULL, cur: [1490, 198], cap: "Choose <b>Combined</b> to pool the 12 samples.", hold: 1150 },
         { tap: true, hold: 350 },
         { img: "thesis/gt-combined.jpg", cam: FULL, cur: null, ring: [[16, 280, 280, 102]], cap: "<b>All 12 FCS files.</b> The pooled percentages use summed cell counts for each denominator." },
       ],
