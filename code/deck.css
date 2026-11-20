@@ -977,18 +977,18 @@ p .saved { margin: 0 8px 0 0; }
 .ack-place img { display: block; width: 640px; height: 318px; object-fit: cover; object-position: 50% 42%; border-radius: 12px; }
 .ack-place figcaption { margin-top: 10px; font-size: 18px; color: var(--muted); }
 .ack-team h2 { margin: 14px 0 30px; font-size: 28px; font-weight: 600; }
-.ack-portraits { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 26px 18px; margin: 0; padding: 0; list-style: none; }
+.ack-portraits { display: grid; grid-template-columns: repeat(5, 152px); justify-content: space-between; gap: 26px 0; margin: 0; padding: 0; list-style: none; }
 .ack-portraits li { display: grid; justify-items: center; align-content: start; gap: 12px; text-align: center; color: var(--ink-2); font-size: 21px; line-height: 1.2; }
 .ack-portraits img { width: 152px; height: 152px; border-radius: 8px; object-fit: cover; object-position: 50% 32%; }
-.ack-portraits span { max-width: 170px; text-wrap: balance; }
-.ack-support { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 14px 80px; margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line-2); }
+.ack-portraits span { width: 196px; margin-inline: -22px; text-wrap: balance; }
+.ack-support { display: grid; grid-template-columns: 640px minmax(0, 1fr); align-items: start; gap: 26px 80px; margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--line-2); }
 .ack-support h2 { margin: 0 0 6px; font-size: 22px; font-weight: 600; }
 .ack-support p { margin: 2px 0 0; color: var(--muted); font-size: 20px; line-height: 1.35; }
-.ack-logos { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 40px; padding: 0 0 4px; }
-.ack-uss-fcv { height: 66px; width: auto; }
-.ack-anid { width: 116px; height: auto; }
-.ack-centro { width: 140px; height: auto; }
-.ack-logos .ack-hblt { height: 62px; width: auto; }
+.ack-logos { grid-column: 1 / -1; display: flex; align-items: center; gap: 56px; }
+.ack-uss-fcv { height: 62px; width: auto; }
+.ack-anid { height: 62px; width: auto; }
+.ack-centro { width: 148px; height: auto; }
+.ack-logos .ack-hblt { height: 58px; width: auto; }
 /* title slide: authors use the full line width (10 Nov 2026) */
 #s-title .who { right: 60px; }
 #s-title .who .authors { max-width: none; font-size: 22px; white-space: nowrap; }
