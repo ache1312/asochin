@@ -101,7 +101,8 @@
     const st = { yaw: o.yaw ?? 0.6, pitch: o.pitch ?? -0.35, color: o.color, highlight: -1, active: false, drag: null, auto: o.auto ?? 0.0012 };
     const pointLayer = o.palette && window.deckPointCloud?.(canvas, labOf, o.palette, { radius: o.radius, alpha: o.alpha, depthStyle: true });
     const proj = new Float32Array(n * 3);
-    const order = (pointLayer ? Uint16Array : Uint32Array).from({ length: n }, (_, i) => i);
+    const order = (pointLayer && pointLayer.indexBytes !== 4 ? Uint16Array : Uint32Array).from({ length: n }, (_, i) => i);
+    let frame = 0;
     function draw() {
       const cyw = Math.cos(st.yaw), syw = Math.sin(st.yaw), cp = Math.cos(st.pitch), sp = Math.sin(st.pitch);
       for (let i = 0; i < n; i++) {
@@ -110,7 +111,9 @@
         proj[3 * i] = o.cx + X * o.scale; proj[3 * i + 1] = o.cy - Y * o.scale; proj[3 * i + 2] = Z;
       }
       const key = st.color.sortKey;
-      order.sort(key ? (i, j) => key(i) - key(j) || proj[3 * i + 2] - proj[3 * j + 2] : (i, j) => proj[3 * i + 2] - proj[3 * j + 2]);
+      // Depth sort every frame for small clouds; every third frame above 40,000 points (rotation is slow, order barely changes).
+      if (n <= 40000 || frame++ % 3 === 0 || st.resort) { st.resort = false; order.sort(key ? (i, j) => key(i) - key(j) || proj[3 * i + 2] - proj[3 * j + 2] : (i, j) => proj[3 * i + 2] - proj[3 * j + 2]);
+      }
       if (pointLayer && pointLayer(proj, order)) {
         // The WebGL layer holds the points; the 2-D canvas above it only carries overlays (e.g. trajectories).
         if (o.overlay) { x.clearRect(0, 0, W, H); o.overlay(x, proj, project); }
@@ -146,7 +149,7 @@
       setHighlight(h) { st.highlight = h; draw(); },
       // Per-point RGB colours (3 bytes per point); sortKey draws high values last when given.
       setRgb(rgb, sortKey) {
-        st.color = { fn: (i) => `rgb(${rgb[3 * i]},${rgb[3 * i + 1]},${rgb[3 * i + 2]})`, sortKey };
+        st.color = { fn: (i) => `rgb(${rgb[3 * i]},${rgb[3 * i + 1]},${rgb[3 * i + 2]})`, sortKey }; st.resort = true;
         if (pointLayer && pointLayer.setColors) pointLayer.setColors(rgb);
         draw();
       },
@@ -1501,7 +1504,13 @@
   function rgbOf(c) { return Array.isArray(c) ? c : c.startsWith("#") ? hex(c) : c.match(/\d+/g).slice(0, 3).map(Number); }
   FIGS["s-ctend"] = {
     init(el) {
-      const U = window.DECK_RCC_UMAP_DETAIL, E = window.DECK_RCC_EXPLORER, T = window.DECK_TRAJ;
+      const E = window.DECK_RCC_EXPLORER, T = window.DECK_TRAJ;
+      // Every CD8 T cell (68,936); positions are int16 x 1e-4 -> thousandths, the units the trajectory curves use below.
+      let U = window.DECK_RCC_UMAP_DETAIL;
+      if (E && E.p3) {
+        const raw = bytes(E.p3), p16 = new Int16Array(raw.buffer, raw.byteOffset, raw.byteLength / 2);
+        U = { ct: bytes(E.ct), dom: bytes(E.dom), p3: Float32Array.from(p16, (v) => v / 10) };
+      }
       this.el = el; this.U = U; this.E = E; this.T = T;
       this.ct = Uint8Array.from(U.ct); this.dom = Uint8Array.from(U.dom); this.n = this.ct.length;
       this.expr = E ? bytes(E.expr) : null; this.t = E ? bytes(E.t) : null; this.tumor = E ? bytes(E.tumor) : null;

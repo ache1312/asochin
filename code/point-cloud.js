@@ -33,7 +33,6 @@
   }
 
   window.deckPointCloud = function (canvas, labels, palette, { radius, alpha, depthStyle = false, colorMix = 1 }) {
-    if (labels.length > 65_536) return null; // The depth order uses 16-bit indices.
     const layer = document.createElement("canvas");
     layer.className = "deck-point-cloud";
     layer.setAttribute("aria-hidden", "true");
@@ -43,6 +42,10 @@
     layer.height = parseFloat(layer.style.height);
     const gl = layer.getContext("webgl", { antialias: false, depth: false, preserveDrawingBuffer: true });
     if (!gl) return null;
+    // Depth order: 16-bit indices up to 65,536 points, 32-bit (OES_element_index_uint) above that.
+    const wide = labels.length > 65_536;
+    if (wide && !gl.getExtension("OES_element_index_uint")) return null;
+    const indexType = wide ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT, indexBytes = wide ? 4 : 2;
     const program = makeProgram(gl);
     if (!program) return null;
     gl.useProgram(program);
@@ -63,7 +66,7 @@
     const positions = attribute("a_position", gl.FLOAT, false, labels.length * 12, gl.DYNAMIC_DRAW);
     const indices = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indices);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, labels.length * 2, gl.DYNAMIC_DRAW);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, labels.length * indexBytes, gl.DYNAMIC_DRAW);
 
     gl.viewport(0, 0, layer.width, layer.height);
     gl.uniform2f(gl.getUniformLocation(program, "u_viewport"), layer.width, layer.height);
@@ -84,13 +87,14 @@
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, projected);
       if (order) {
         gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, 0, order);
-        gl.drawElements(gl.POINTS, labels.length, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.POINTS, labels.length, indexType, 0);
       } else {
         gl.drawArrays(gl.POINTS, 0, labels.length);
       }
       return true;
     };
     // Recolour every point (RGB bytes, 3 per point) without rebuilding the layer.
+    draw.indexBytes = indexBytes;
     draw.setColors = (rgbBytes) => {
       gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, rgbBytes);
