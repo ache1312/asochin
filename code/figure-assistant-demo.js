@@ -23,8 +23,9 @@
   const FIG_W = 1300, FIG_H = 748;
   // ---------- 21 plots: each pair of the seven CD8 markers ----------
   const CD8 = window.DECK_FIGURE_CD8;
-  const COLS = 7, ROWS = 3, MARGIN = 16, CELL_W = (FIG_W - 2 * MARGIN) / COLS, CELL_H = (FIG_H - 2 * MARGIN) / ROWS, SIDE = 135;
-  const cellBox = (k) => { const c = k % COLS, r = Math.floor(k / COLS), x = MARGIN + c * CELL_W, y = MARGIN + r * CELL_H; return { x, y, px: x + 42, py: y + 32 }; };
+  const COLS = 7, ROWS = 3, MARGIN = 16, CELL_W = (FIG_W - 2 * MARGIN) / COLS, CELL_H = (FIG_H - 2 * MARGIN) / ROWS, SIDE = 118;
+  const cellBox = (k) => { const c = k % COLS, r = Math.floor(k / COLS), x = MARGIN + c * CELL_W, y = MARGIN + r * CELL_H; return { x, y, px: x + 50, py: y + 40 }; };
+  // Left of each plot: y tick values (to px − 6) and the rotated y title (centred at px − 38), ~18 px clear of the plot to its left.
   // The SVG and canvas use the same decades on the saved arcsinh coordinates.
   const ticksOf = (marker) => {
     const j = CD8.markers.indexOf(marker);
@@ -78,12 +79,8 @@
       x.textAlign = "center"; let lastR = -1e9; for (const [u, t] of ticksOf(p.x)) { const tx = X0 + u * W0, hw = x.measureText(t).width / 2; x.beginPath(); x.moveTo(tx, py + SIDE); x.lineTo(tx, py + SIDE + 4); x.stroke(); if (tx - hw > lastR + 3) { x.fillText(t, tx, py + SIDE + 6 + ts); lastR = tx + hw; } }
       x.textAlign = "right"; for (const [u, t] of ticksOf(p.y)) { const ty = Y0 - u * W0; x.beginPath(); x.moveTo(px, ty); x.lineTo(px - 4, ty); x.stroke(); x.fillText(t, px - 6, ty + ts * .35); }
       x.fillStyle = after ? "#0f172a" : "#475569"; x.font = `600 ${fs}px 'Source Sans 3', sans-serif`; x.textAlign = "center"; x.fillText(p.x, px + SIDE / 2, py + SIDE + 9 + ts + fs);
-      x.save(); x.translate(px - 35, py + SIDE / 2); x.rotate(-Math.PI / 2); x.fillText(p.y, 0, 0); x.restore();
+      x.save(); x.translate(px - 38, py + SIDE / 2); x.rotate(-Math.PI / 2); x.fillText(p.y, 0, 0); x.restore();
     });
-    x.fillStyle = "#475569";
-    x.font = "500 15px 'Source Sans 3', sans-serif";
-    x.textAlign = "center";
-    x.fillText(`MNN-corrected signal · arcsinh display (cofactor ${CD8.displayCofactor})`, FIG_W / 2, FIG_H - 15);
   }
   window.FlowCVFigurePage = { draw: drawPage };
 

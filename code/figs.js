@@ -111,7 +111,11 @@
       }
       const key = st.color.sortKey;
       order.sort(key ? (i, j) => key(i) - key(j) || proj[3 * i + 2] - proj[3 * j + 2] : (i, j) => proj[3 * i + 2] - proj[3 * j + 2]);
-      if (pointLayer && pointLayer(proj, order)) return;
+      if (pointLayer && pointLayer(proj, order)) {
+        // The WebGL layer holds the points; the 2-D canvas above it only carries overlays (e.g. trajectories).
+        if (o.overlay) { x.clearRect(0, 0, W, H); o.overlay(x, proj, project); }
+        return;
+      }
       x.clearRect(0, 0, W, H); if (o.bg) { x.fillStyle = o.bg; x.fillRect(0, 0, W, H); }
       for (let k = 0; k < n; k++) {
         const i = order[k], z = proj[3 * i + 2], dim = st.highlight >= 0 && labOf[i] !== st.highlight;
@@ -120,7 +124,14 @@
         const rad = o.radius * (0.8 + 0.35 * (z + 1) / 2);
         x.fillRect(proj[3 * i] - rad, proj[3 * i + 1] - rad, rad * 2, rad * 2);
       }
-      x.globalAlpha = 1; if (o.overlay) o.overlay(x, proj);
+      x.globalAlpha = 1; if (o.overlay) o.overlay(x, proj, project);
+    }
+    // Project a point given in the data's own coordinates with the current rotation (for overlays drawn in 3-D).
+    function project(px, py, pz) {
+      const a = (px - cx) / r, b = (py - cy) / r, c = (pz - cz) / r;
+      const cyw = Math.cos(st.yaw), syw = Math.sin(st.yaw), cp = Math.cos(st.pitch), sp = Math.sin(st.pitch);
+      const X = a * cyw + c * syw, Z0 = -a * syw + c * cyw, Y = b * cp - Z0 * sp, Z = b * sp + Z0 * cp;
+      return [o.cx + X * o.scale, o.cy - Y * o.scale, Z];
     }
     function loop() { if (!st.active) return; if (!st.drag && st.auto) { st.yaw += st.auto; } draw(); requestAnimationFrame(loop); }
     canvas.addEventListener("pointerdown", (e) => { st.drag = pointer(canvas, e); canvas.setPointerCapture(e.pointerId); });
@@ -133,6 +144,12 @@
       stop() { st.active = false; },
       setColor(c) { st.color = c; draw(); },
       setHighlight(h) { st.highlight = h; draw(); },
+      // Per-point RGB colours (3 bytes per point); sortKey draws high values last when given.
+      setRgb(rgb, sortKey) {
+        st.color = { fn: (i) => `rgb(${rgb[3 * i]},${rgb[3 * i + 1]},${rgb[3 * i + 2]})`, sortKey };
+        if (pointLayer && pointLayer.setColors) pointLayer.setColors(rgb);
+        draw();
+      },
     };
   }
   const byPop = { fn: (i) => popColor[L.lab[i]] };
@@ -1476,33 +1493,114 @@
     });
     x.globalAlpha = 1;
   }
+  // ---------- 17 · interactive CD8 map ----------
+  // Same 32,000 cells as the title slide. Colour by cell type, tissue, pseudotime or any marker, and show the four
+  // Slingshot trajectories as 3-D curves (data/rcc-cd8-explorer.js + data/rcc-trajectories.js, same UMAP coordinates).
+  const TISSUE_COL = ["#f87171", "#60a5fa"], LINEAGE_COL = ["#22d3ee", "#c4b5fd", "#4ade80", "#fbbf24"], BG = [11, 18, 32];
+  function bytes(b64) { const raw = atob(b64), out = new Uint8Array(raw.length); for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i); return out; }
+  function rgbOf(c) { return Array.isArray(c) ? c : c.startsWith("#") ? hex(c) : c.match(/\d+/g).slice(0, 3).map(Number); }
   FIGS["s-ctend"] = {
     init(el) {
-      this.v = cd8Map(el.querySelector("#ctend3d"), { cx: 1330, cy: 580, scale: 420, radius: 2.1, alpha: 0.9, auto: 0.0012, yaw: 0.9, pitch: -0.3 });
-      const leg = el.querySelector(".ct-leg"), ORDER = [0, 1, 2, 3, 5, 4, 6, 7, 8, 9];
-      leg.innerHTML = ORDER.map((k) => `<li data-k="${k}"><i style="background:${CT_COL[k]}"></i>${CT_SHORT[k]}</li>`).join("");
-      // hover previews a cell type; a click pins it; a click anywhere else on the slide shows all again
-      this.leg = leg; this.pin = -1;
-      const show = (k) => this.v.setHighlight(k);
-      leg.querySelectorAll("li").forEach((li) => {
-        li.addEventListener("pointerenter", () => show(+li.dataset.k));
-        li.addEventListener("pointerleave", () => show(this.pin));
-        li.addEventListener("click", (e) => { e.stopPropagation(); this.setPin(this.pin === +li.dataset.k ? -1 : +li.dataset.k); });
+      const U = window.DECK_RCC_UMAP_DETAIL, E = window.DECK_RCC_EXPLORER, T = window.DECK_TRAJ;
+      this.el = el; this.U = U; this.E = E; this.T = T;
+      this.ct = Uint8Array.from(U.ct); this.dom = Uint8Array.from(U.dom); this.n = this.ct.length;
+      this.expr = E ? bytes(E.expr) : null; this.t = E ? bytes(E.t) : null; this.tumor = E ? bytes(E.tumor) : null;
+      this.mode = "type"; this.marker = E ? E.markers.indexOf("PD-1") : -1; this.focus = -1; this.lineFocus = -1;
+      this.lines = new Set();
+      this.v = cd8Map(el.querySelector("#ctend3d"), { cx: 1330, cy: 580, scale: 420, radius: 1.6, alpha: 0.88, auto: 0.0012, yaw: 0.9, pitch: -0.3,
+        palette: CT_COL, overlay: (x, proj, project) => this.drawLines(x, project) }, U);
+      this.rgb = new Uint8Array(this.n * 3);
+      const panel = el.querySelector(".ct-panel");
+      panel.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => this.setMode(b.dataset.mode)));
+      const markers = panel.querySelector(".ct-markers");
+      if (E) markers.innerHTML = E.markers.map((m, j) => `<button type="button" data-m="${j}">${m}</button>`).join("");
+      markers.querySelectorAll("[data-m]").forEach((b) => b.addEventListener("click", () => { this.marker = +b.dataset.m; this.render(); }));
+      const traj = panel.querySelector(".ct-traj-list");
+      traj.innerHTML = (T ? T.lineages : []).map((l, j) =>
+        `<button type="button" data-l="${j}" style="--c:${LINEAGE_COL[j]}"><i></i>${l.lineage} · ${tn(l.end_name)}</button>`).join("");
+      traj.querySelectorAll("[data-l]").forEach((b) => b.addEventListener("click", () => {
+        const j = +b.dataset.l;
+        if (this.lines.has(j) && this.lineFocus === j) { this.lines.delete(j); this.lineFocus = -1; }
+        else { this.lines.add(j); this.lineFocus = j; }
+        this.render();
+      }));
+      panel.querySelector(".ct-traj-all").addEventListener("click", () => {
+        const all = this.lines.size === (T ? T.lineages.length : 0);
+        this.lines = all ? new Set() : new Set((T ? T.lineages : []).map((_, j) => j)); this.lineFocus = -1; this.render();
       });
-      let down = null;
-      el.addEventListener("pointerdown", (e) => { down = [e.clientX, e.clientY]; });
-      el.addEventListener("click", (e) => {
-        if (this.pin < 0 || e.button !== 0 || e.target.closest(".ct-leg li")) return;
-        if (down && Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) return; // rotating the map keeps the selection
-        e.stopPropagation(); this.setPin(-1); // this click only clears the selection; the next one advances
+      if (!E) panel.querySelectorAll('[data-mode="pseudo"], [data-mode="marker"], [data-mode="tissue"]').forEach((b) => (b.disabled = true));
+      this.setMode("type");
+    },
+    setMode(mode) { this.mode = mode; this.focus = -1; this.render(); },
+    legend() {
+      const leg = this.el.querySelector(".ct-leg"), scale = this.el.querySelector(".ct-scale");
+      let items = [];
+      if (this.mode === "type") items = [0, 1, 2, 3, 5, 4, 6, 7, 8, 9].map((k) => [k, CT_COL[k], CT_SHORT[k]]);
+      if (this.mode === "tissue") items = [[0, TISSUE_COL[0], "Blood"], [1, TISSUE_COL[1], "Tumor"]];
+      leg.hidden = !items.length;
+      leg.innerHTML = items.map(([k, c, name]) => `<li data-k="${k}" class="${this.focus === k ? "on" : ""}"><i style="background:${c}"></i>${name}</li>`).join("");
+      leg.classList.toggle("pinned", this.focus >= 0);
+      leg.querySelectorAll("li").forEach((li) => li.addEventListener("click", (e) => {
+        e.stopPropagation(); this.focus = this.focus === +li.dataset.k ? -1 : +li.dataset.k; this.render();
+      }));
+      const continuous = this.mode === "pseudo" || this.mode === "marker";
+      scale.hidden = !continuous;
+      if (continuous) {
+        scale.querySelector(".ct-scale-name").textContent = this.mode === "pseudo" ? "Pseudotime along each cell's trajectory" : `${this.E.markers[this.marker]} expression`;
+        scale.querySelector(".ct-scale-lo").textContent = this.mode === "pseudo" ? "early" : "low";
+        scale.querySelector(".ct-scale-hi").textContent = this.mode === "pseudo" ? "late" : "high";
+        scale.querySelector(".ct-scale-bar").style.background = `linear-gradient(90deg, ${[0, .25, .5, .75, 1].map((v) => `rgb(${rgbOf(viridis(v)).join(",")})`).join(",")})`;
+      }
+      this.el.querySelector(".ct-markers").hidden = this.mode !== "marker";
+      this.el.querySelectorAll(".ct-markers [data-m]").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.m === this.marker)));
+      this.el.querySelectorAll(".ct-modes [data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === this.mode)));
+      this.el.querySelectorAll(".ct-traj-list [data-l]").forEach((b) => {
+        b.setAttribute("aria-pressed", String(this.lines.has(+b.dataset.l))); b.classList.toggle("focus", this.lineFocus === +b.dataset.l);
       });
+      const all = this.el.querySelector(".ct-traj-all");
+      all.textContent = this.lines.size === (this.T ? this.T.lineages.length : 0) ? "Hide all" : "Show all";
     },
-    setPin(k) {
-      this.pin = k; this.v.setHighlight(k);
-      this.leg.classList.toggle("pinned", k >= 0);
-      this.leg.querySelectorAll("li").forEach((li) => li.classList.toggle("on", +li.dataset.k === k));
+    render() {
+      const { n, ct, dom, rgb } = this, M = this.E ? this.E.markers.length : 0;
+      let sortKey;
+      const values = this.mode === "marker" ? (i) => this.expr[i * M + this.marker] / 255 : this.mode === "pseudo" ? (i) => (this.t[i] === 255 ? -1 : this.t[i] / 254) : null;
+      const pal = CT_COL.map(rgbOf), tis = TISSUE_COL.map(rgbOf), lut = Array.from({ length: 256 }, (_, v) => rgbOf(viridis(v / 255)));
+      for (let i = 0; i < n; i++) {
+        let c;
+        if (this.mode === "type") c = pal[ct[i]];
+        else if (this.mode === "tissue") c = tis[this.tumor[i]];
+        else { const v = values(i); c = v < 0 ? [51, 65, 85] : lut[Math.round(v * 255)]; }
+        const own = this.mode === "type" ? ct[i] : this.mode === "tissue" ? this.tumor[i] : -1;
+        const dim = (this.focus >= 0 && own !== this.focus) || (this.lineFocus >= 0 && dom[i] !== this.lineFocus);
+        const k = dim ? 0.86 : 0;
+        rgb[3 * i] = c[0] + (BG[0] - c[0]) * k; rgb[3 * i + 1] = c[1] + (BG[1] - c[1]) * k; rgb[3 * i + 2] = c[2] + (BG[2] - c[2]) * k;
+      }
+      if (values) sortKey = (i) => values(i);
+      this.legend();
+      this.v.setRgb(rgb, sortKey);
     },
-    enter() { this.v.start(); }, leave() { this.v.stop(); this.setPin(-1); },
+    drawLines(x, project) {
+      if (!this.T || !this.lines.size) return;
+      x.lineJoin = "round"; x.lineCap = "round"; x.font = "600 24px 'Source Sans 3', system-ui, sans-serif"; x.textBaseline = "middle";
+      for (const j of this.lines) {
+        const l = this.T.lineages[j], pts = l.path3.map((p) => project(p[0] * 1000, p[1] * 1000, p[2] * 1000));
+        if (pts.length < 2) continue;
+        const faded = this.lineFocus >= 0 && this.lineFocus !== j;
+        x.globalAlpha = faded ? 0.35 : 1;
+        for (const [w, c] of [[11, "rgba(11,18,32,.9)"], [5, LINEAGE_COL[j]]]) {
+          x.strokeStyle = c; x.lineWidth = w; x.beginPath(); pts.forEach((p, k) => (k ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1]))); x.stroke();
+        }
+        const [a, b] = [pts[pts.length - 2], pts[pts.length - 1]], ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+        x.fillStyle = LINEAGE_COL[j]; x.beginPath(); x.moveTo(b[0] + 16 * Math.cos(ang), b[1] + 16 * Math.sin(ang));
+        x.lineTo(b[0] + 12 * Math.cos(ang + 2.4), b[1] + 12 * Math.sin(ang + 2.4)); x.lineTo(b[0] + 12 * Math.cos(ang - 2.4), b[1] + 12 * Math.sin(ang - 2.4)); x.fill();
+        const label = `${l.lineage} · ${tn(l.end_name)}`;
+        x.lineWidth = 6; x.strokeStyle = "rgba(11,18,32,.85)"; x.strokeText(label, b[0] + 22, b[1]); x.fillStyle = "#fff"; x.fillText(label, b[0] + 22, b[1]);
+        x.beginPath(); x.arc(pts[0][0], pts[0][1], 7, 0, 2 * Math.PI); x.fillStyle = "#fff"; x.fill();
+      }
+      x.globalAlpha = 1;
+    },
+    enter() { this.v.start(); },
+    leave() { this.v.stop(); },
   };
   FIGS["s-close"] = {
     init(el) {

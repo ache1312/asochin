@@ -59,7 +59,7 @@
     const rgb = palette.map(hex => [1, 3, 5].map(i => Math.round(255 + (parseInt(hex.slice(i, i + 2), 16) - 255) * colorMix)));
     const colors = new Uint8Array(labels.length * 3);
     for (let i = 0; i < labels.length; i++) colors.set(rgb[labels[i]], i * 3);
-    attribute("a_color", gl.UNSIGNED_BYTE, true, colors, gl.STATIC_DRAW);
+    const colorBuffer = attribute("a_color", gl.UNSIGNED_BYTE, true, colors, gl.DYNAMIC_DRAW);
     const positions = attribute("a_position", gl.FLOAT, false, labels.length * 12, gl.DYNAMIC_DRAW);
     const indices = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indices);
@@ -74,7 +74,7 @@
     gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     canvas.before(layer);
 
-    return (projected, order) => {
+    const draw = (projected, order) => {
       if (gl.isContextLost()) {
         layer.remove();
         return false;
@@ -90,5 +90,11 @@
       }
       return true;
     };
+    // Recolour every point (RGB bytes, 3 per point) without rebuilding the layer.
+    draw.setColors = (rgbBytes) => {
+      gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, rgbBytes);
+    };
+    return draw;
   };
 })();

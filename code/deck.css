@@ -978,6 +978,10 @@ p .saved { margin: 0 8px 0 0; }
 .ack-portraits li { display: flex; align-items: center; gap: 16px; color: var(--ink-2); font-size: 22px; line-height: 1.2; }
 .ack-portraits img { flex: none; width: 98px; height: 98px; border-radius: 5px; object-fit: cover; object-position: 50% 35%; }
 .ack-portraits span { max-width: 137px; text-wrap: balance; }
+.ack-clinic { display: flex; align-items: center; gap: 18px; margin-top: 28px; }
+.ack-clinic img { flex: none; width: 98px; height: 98px; border-radius: 5px; object-fit: cover; object-position: 50% 30%; }
+.ack-clinic div { display: grid; gap: 2px; font-size: 20px; color: var(--muted); }
+.ack-clinic strong { font-size: 22px; font-weight: 600; color: var(--ink-2); }
 .ack-support { display: grid; grid-template-columns: 304px 1fr 1fr; align-items: center; gap: 62px; margin-top: 83px; padding-top: 32px; border-top: 1px solid var(--line-2); }
 .ack-support h2 { margin: 0 0 9px; font-size: 24px; font-weight: 600; }
 .ack-support p { margin: 4px 0 0; color: var(--muted); font-size: 22px; line-height: 1.35; }
@@ -994,12 +998,34 @@ p .saved { margin: 0 8px 0 0; }
 #s-ctend .ct-head h1 { color: #f8fafc; margin: 0; }
 #s-ctend .ct-head h1 em { color: #93c5fd; }
 #s-ctend .ct-head p { color: #94a3b8; font-size: 24px; margin: 10px 0 0; }
-#s-ctend .ct-leg { position: absolute; left: 120px; top: 300px; z-index: 2; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; font-size: 27px; color: #e2e8f0; }
+#s-ctend .ct-panel { position: absolute; left: 120px; top: 270px; z-index: 2; width: 560px; display: grid; gap: 22px; color: #e2e8f0; }
+#s-ctend .ct-modes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+#s-ctend .ct-modes > span, #s-ctend .ct-traj-head > span { width: 100%; font-size: 18px; letter-spacing: .06em; text-transform: uppercase; color: #94a3b8; }
+#s-ctend .ct-modes button, #s-ctend .ct-markers button, #s-ctend .ct-traj button { font: inherit; color: #e2e8f0; background: rgba(148, 163, 184, .12); border: 1px solid rgba(148, 163, 184, .28); border-radius: 999px; cursor: pointer; transition: background .2s, border-color .2s, opacity .2s; }
+#s-ctend .ct-modes button { font-size: 22px; padding: 6px 18px; }
+#s-ctend .ct-modes button[aria-pressed="true"], #s-ctend .ct-markers button[aria-pressed="true"] { background: #e2e8f0; color: #0b1220; border-color: #e2e8f0; font-weight: 600; }
+#s-ctend .ct-modes button:disabled { opacity: .35; cursor: default; }
+#s-ctend .ct-markers { display: flex; flex-wrap: wrap; gap: 8px; }
+#s-ctend .ct-markers[hidden] { display: none; }
+#s-ctend .ct-markers button { font-size: 19px; padding: 4px 12px; }
+#s-ctend .ct-leg { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 24px; color: #e2e8f0; }
+#s-ctend .ct-leg[hidden], #s-ctend .ct-scale[hidden] { display: none; }
 #s-ctend .ct-leg li { display: flex; align-items: center; gap: 14px; cursor: pointer; padding: 2px 12px 2px 8px; margin-left: -8px; border-radius: 999px; transition: opacity .2s, background .2s; }
 #s-ctend .ct-leg.pinned li { opacity: .4; }
 #s-ctend .ct-leg.pinned li:hover { opacity: .9; }
 #s-ctend .ct-leg.pinned li.on { opacity: 1; background: rgba(148, 163, 184, .18); font-weight: 600; }
 #s-ctend .ct-leg i { width: 18px; height: 18px; border-radius: 50%; flex: none; }
+#s-ctend .ct-scale { display: grid; gap: 8px; font-size: 22px; }
+#s-ctend .ct-scale-bar { height: 16px; border-radius: 8px; }
+#s-ctend .ct-scale-ends { display: flex; justify-content: space-between; color: #94a3b8; font-size: 19px; }
+#s-ctend .ct-traj { display: grid; gap: 10px; }
+#s-ctend .ct-traj-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+#s-ctend .ct-traj-head .ct-traj-all { font-size: 18px; padding: 3px 12px; }
+#s-ctend .ct-traj-list { display: grid; gap: 8px; }
+#s-ctend .ct-traj-list button { display: flex; align-items: center; gap: 12px; text-align: left; font-size: 21px; padding: 6px 14px; border-radius: 10px; opacity: .7; }
+#s-ctend .ct-traj-list button i { width: 26px; height: 5px; border-radius: 3px; background: var(--c); flex: none; }
+#s-ctend .ct-traj-list button[aria-pressed="true"] { opacity: 1; border-color: var(--c); }
+#s-ctend .ct-traj-list button.focus { background: rgba(148, 163, 184, .22); font-weight: 600; }
 
 /* index-en-spectral.html only (body.deck-spectral): content reaches down to the footer, as on the access slide */
 .deck-spectral #s-what .body > .col.grow > .card:first-child { height: 700px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
