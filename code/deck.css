@@ -970,25 +970,25 @@ p .saved { margin: 0 8px 0 0; }
 #s-concl .cc3-road h3::before { content: "→ "; color: var(--blue); }
 #s-concl .cc3-road p { font-size: 22px; line-height: 1.35; color: var(--ink-2); margin: 0; }
 .acknowledgements { padding-inline: 120px; }
-.ack-main { display: grid; grid-template-columns: 600px minmax(0, 1fr); align-items: start; gap: 90px; margin-top: 36px; }
+.ack-main { display: grid; grid-template-columns: 640px minmax(0, 1fr); align-items: start; gap: 80px; margin-top: 30px; }
 .ack-opening h1 { font-size: 74px; font-weight: 600; margin: 0; }
-.ack-opening p { max-width: 590px; margin: 20px 0 0; color: var(--ink-2); font-size: 29px; line-height: 1.36; text-wrap: pretty; }
+.ack-opening p { max-width: 630px; margin: 20px 0 0; color: var(--ink-2); font-size: 29px; line-height: 1.36; text-wrap: pretty; }
 .ack-place { margin: 28px 0 0; }
-.ack-place img { display: block; width: 600px; height: 300px; object-fit: cover; object-position: 50% 42%; border-radius: 12px; }
+.ack-place img { display: block; width: 640px; height: 318px; object-fit: cover; object-position: 50% 42%; border-radius: 12px; }
 .ack-place figcaption { margin-top: 10px; font-size: 18px; color: var(--muted); }
-.ack-team h2 { margin: 14px 0 26px; font-size: 27px; font-weight: 600; }
-.ack-portraits { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 26px 20px; margin: 0; padding: 0; list-style: none; }
-.ack-portraits li { display: grid; justify-items: center; align-content: start; gap: 10px; text-align: center; color: var(--ink-2); font-size: 20px; line-height: 1.2; }
-.ack-portraits img { width: 128px; height: 128px; border-radius: 8px; object-fit: cover; object-position: 50% 32%; }
+.ack-team h2 { margin: 14px 0 30px; font-size: 28px; font-weight: 600; }
+.ack-portraits { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 26px 18px; margin: 0; padding: 0; list-style: none; }
+.ack-portraits li { display: grid; justify-items: center; align-content: start; gap: 12px; text-align: center; color: var(--ink-2); font-size: 21px; line-height: 1.2; }
+.ack-portraits img { width: 152px; height: 152px; border-radius: 8px; object-fit: cover; object-position: 50% 32%; }
 .ack-portraits span { max-width: 170px; text-wrap: balance; }
-.ack-support { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 18px 80px; margin-top: 34px; padding-top: 24px; border-top: 1px solid var(--line-2); }
+.ack-support { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 14px 80px; margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line-2); }
 .ack-support h2 { margin: 0 0 6px; font-size: 22px; font-weight: 600; }
 .ack-support p { margin: 2px 0 0; color: var(--muted); font-size: 20px; line-height: 1.35; }
-.ack-logos { grid-column: 1 / -1; display: flex; align-items: center; gap: 46px; }
-.ack-uss-fcv { height: 62px; width: auto; }
-.ack-anid { width: 112px; height: auto; }
-.ack-centro { width: 132px; height: auto; }
-.ack-logos .ack-hblt { height: 56px; width: auto; }
+.ack-logos { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 40px; padding: 0 0 4px; }
+.ack-uss-fcv { height: 66px; width: auto; }
+.ack-anid { width: 116px; height: auto; }
+.ack-centro { width: 140px; height: auto; }
+.ack-logos .ack-hblt { height: 62px; width: auto; }
 /* title slide: authors use the full line width (10 Nov 2026) */
 #s-title .who { right: 60px; }
 #s-title .who .authors { max-width: none; font-size: 22px; white-space: nowrap; }
