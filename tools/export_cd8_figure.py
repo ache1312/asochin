@@ -63,11 +63,12 @@ def explicit_scatter_points(svg):
     radii = {}
     for path in root.iter(f"{{{namespace}}}path"):
         name, tokens = path.get("id", ""), path.get("d", "").split()
-        if name and tokens[:2] == ["M", "0"] and tokens[3:4] == ["C"] and tokens[-1] == "z":
+        # scatter markers are "C0_0_<hex>"; glyph outlines ("SourceSans3-Bold-6f", text as paths) must stay untouched
+        if re.fullmatch(r"C\d+_\d+_[0-9a-f]+", name) and tokens[:2] == ["M", "0"] and tokens[3:4] == ["C"] and tokens[-1] == "z":
             radii["#" + name] = tokens[2]
     for point in root.iter(f"{{{namespace}}}use"):
         radius = radii.get(point.get(f"{{{xlink}}}href"))
-        if radius is None:
+        if radius is None or "x" not in point.attrib:
             continue
         x, y = point.attrib.pop("x"), point.attrib.pop("y")
         point.attrib.pop(f"{{{xlink}}}href")
@@ -124,8 +125,13 @@ def render(flowcv, output, assistant_data=None):
     marker_data = data[:, measured[-2:]]
     print("Full CD8 count per tissue", totals.tolist())
 
-    plt.rcParams.update({"svg.fonttype": "none", "svg.hashsalt": "asochin-cd8-figure",
-                         "font.family": "DejaVu Sans", "font.size": 13,
+    # Same typeface as the deck (Source Sans 3), stored as outlines: the SVG is shown through <img>, which cannot
+    # load the deck's web fonts, so live text would fall back to whatever font the presenting computer has.
+    from matplotlib import font_manager
+    for ttf in sorted((Path(__file__).resolve().parent.parent / "assets" / "fonts").glob("SourceSans3-*.ttf")):
+        font_manager.fontManager.addfont(str(ttf))
+    plt.rcParams.update({"svg.fonttype": "path", "svg.hashsalt": "asochin-cd8-figure",
+                         "font.family": "Source Sans 3", "font.size": 13,
                          "axes.labelcolor": INK, "xtick.color": MUTED, "ytick.color": MUTED})
     fig = plt.figure(figsize=(W / 72, H / 72), facecolor="white")
 
