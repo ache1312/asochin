@@ -1,6 +1,4 @@
-/* Real FlowCV screens, one chapter per click (slides 11 and 12 of the spectral deck).
-   Every image is an unedited screenshot of the application (1600×1000 CSS px, recorded 9 Nov 2026 in an isolated copy);
-   this file only moves a camera, a pointer and highlight rings over them. Coordinates are application pixels. */
+/* FlowCV tours built from application captures (1600×1000 CSS px). Coordinates are application pixels. */
 (function () {
   const FIGS = (window.FIGS = window.FIGS || {});
   const AW = 1600, AH = 1000, DIR = "assets/app/";
@@ -12,7 +10,9 @@
         this.el = el; this.scr = el.querySelector(".tour-screen"); this.world = el.querySelector(".tour-world");
         this.imgs = [...el.querySelectorAll(".tour-img")]; this.top = 0; this.cur = el.querySelector(".tour-cur");
         this.cap = el.querySelector(".tour-cap"); this.items = [...el.querySelectorAll(".chap")]; this.token = 0; this.n = -1;
-        cfg.chapters.flat().forEach((f) => { if (f.img) new Image().src = DIR + f.img; }); // preload
+        cfg.chapters.flat().forEach((f) => { if (f.img || f.type) new Image().src = DIR + (f.img || f.type.sprite); }); // preload
+        this.roi = this.world.querySelector(".tour-roi");
+        this.entry = this.world.querySelector(".tour-entry");
       },
       enter() { this.active = true; this.n = -1; },
       leave() { this.active = false; this.token++; const st = this.el.querySelector(".run-stage"); if (st) { cancelAnimationFrame(this.runRaf); st.querySelector("video").pause(); } },
@@ -27,12 +27,30 @@
         b.style.transition = a.style.transition = instant ? "none" : fade != null ? `opacity ${fade}ms linear` : ""; b.src = DIR + img; b.dataset.img = img;
         b.classList.add("on"); a.classList.remove("on"); this.top = 1 - this.top;
       },
+      async cut(img, my) {
+        const a = this.imgs[this.top], b = this.imgs[1 - this.top];
+        if (a.dataset.img === img) return true;
+        b.src = DIR + img;
+        try { await b.decode(); } catch { return false; }
+        if (my !== this.token) return false;
+        b.dataset.img = img;
+        b.classList.add("on"); a.classList.remove("on"); this.top = 1 - this.top;
+        return true;
+      },
       rings(list) {
         this.world.querySelectorAll(".tour-ring").forEach((r) => r.remove());
         (list || []).forEach((b) => { const r = document.createElement("i"); r.className = "tour-ring"; r.style.cssText = `left:${b[0]}px;top:${b[1]}px;width:${b[2]}px;height:${b[3]}px`; this.world.appendChild(r); });
       },
       apply(f, instant) {
+        if (cfg.cut && f.img && !matchMedia("print").matches) {
+          const my = this.token;
+          return this.cut(f.img, my).then((shown) => { if (shown && my === this.token) this.applyState(f, instant); });
+        }
         if (f.img) this.show(f.img, instant, f.fade);
+        this.applyState(f, instant);
+      },
+      applyState(f, instant) {
+        if (f.img) { if (this.roi) this.roi.hidden = true; if (this.entry) this.entry.hidden = true; }
         if (f.cam) this.cam(f.cam, instant);
         if ("ring" in f) this.rings(f.ring);
         if ("cap" in f) this.cap.innerHTML = f.cap;
@@ -67,7 +85,50 @@
       },
       final(k) { // last state of chapter k, with no motion
         const merged = {}; cfg.chapters.slice(0, k + 1).forEach((ch) => ch.forEach((f) => Object.assign(merged, f)));
-        delete merged.tap; delete merged.hold; merged.cur = null; this.apply(merged, true);
+        delete merged.tap; delete merged.hold; merged.cur = null; return this.apply(merged, true);
+      },
+      drawRoi(d, my) {
+        const roi = this.roi, cursor = this.cur;
+        const [startX, startY] = d.from, [endX, endY] = d.to;
+        const [plotLeft, plotTop] = d.clip;
+        cursor.style.transition = "none";
+        roi.style.clipPath = `inset(${plotTop}px 0 0 ${plotLeft}px)`;
+        return new Promise((done) => {
+          const start = performance.now();
+          const draw = (now) => {
+            if (my !== this.token) return done();
+            const t = Math.min(1, (now - start) / d.ms);
+            const progress = t * t * (3 - 2 * t);
+            const x = startX + (endX - startX) * progress;
+            const y = startY + (endY - startY) * progress;
+            cursor.style.left = `${x}px`;
+            cursor.style.top = `${y}px`;
+            roi.style.setProperty("--x", `${Math.max(startX, plotLeft)}px`);
+            roi.style.setProperty("--y", `${Math.max(y, plotTop)}px`);
+            roi.style.setProperty("--w", `${Math.max(0, x - Math.max(startX, plotLeft))}px`);
+            roi.style.setProperty("--h", `${startY - Math.max(y, plotTop)}px`);
+            roi.hidden = false;
+            if (t < 1) requestAnimationFrame(draw);
+            else { cursor.style.transition = ""; done(); }
+          };
+          requestAnimationFrame(draw);
+        });
+      },
+      async typeEntry({ sprite, box: [x, y, w, h], beats }, my) {
+        const entry = this.entry, img = new Image();
+        img.src = DIR + sprite;
+        try { await img.decode(); } catch { return; }
+        if (my !== this.token) return;
+        Object.assign(entry.style, {
+          left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px`,
+          backgroundImage: `url(${img.src})`, backgroundSize: `${w}px ${h * beats.length}px`,
+        });
+        entry.hidden = false;
+        for (const [i, ms] of beats.entries()) {
+          if (my !== this.token) return;
+          entry.style.backgroundPosition = `0 ${-i * h}px`;
+          await wait(ms);
+        }
       },
       // One continuous, human-paced drag (11 Nov 2026): pointer and ghost follow a smooth quadratic curve at 60 fps
       // (slow start, faster middle, slow arrival, a short hover on the target); the real screen shown at each moment is
@@ -91,18 +152,33 @@
           requestAnimationFrame(tick);
         });
       },
-      async play(k) {
-        const my = ++this.token;
-        for (const f of cfg.chapters[k]) { if (my !== this.token) return; this.apply(f, false); if (f.drag) await this.animDrag(f.drag, my); await wait(f.hold || 0); }
+      async play(k, my) {
+        if (k > 0) await this.final(k - 1);
+        for (const f of cfg.chapters[k]) {
+          if (my !== this.token) return;
+          await this.apply(f, false);
+          if (my !== this.token) return;
+          if (f.drag) await this.animDrag(f.drag, my);
+          if (f.roi) await this.drawRoi(f.roi, my);
+          if (f.type) await this.typeEntry(f.type, my);
+          await wait(f.hold || 0);
+        }
         if (my === this.token) this.cur.classList.remove("on");
       },
       step(n) {
         const k = Math.min(n, cfg.chapters.length - 1), on = cfg.on[Math.min(n, cfg.on.length - 1)];
         this.items.forEach((e, i) => { e.classList.toggle("on", i === on); e.classList.toggle("done", i < on); });
         const printing = document.documentElement.classList.contains("printing") || matchMedia("print").matches;
-        const forward = this.active && !printing && (n === this.n + 1 || (this.n === -1 && n === 0)) && n < cfg.chapters.length;
-        this.n = n; this.token++;
-        if (forward) { if (k > 0) this.final(k - 1); this.play(k); } else this.final(k);
+        const reducedMotion = cfg.cut && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const forward = this.active && !printing && !reducedMotion && n === this.n + 1 && n < cfg.chapters.length;
+        this.n = n;
+        const my = ++this.token;
+        if (this.roi) {
+          this.roi.hidden = true;
+          this.cur.style.transition = "";
+        }
+        if (this.entry) this.entry.hidden = true;
+        if (forward) this.play(k, my); else this.final(k);
       },
     };
   }
@@ -221,7 +297,98 @@
   // RCC19 phase 2 (10 Nov 2026): real isolated UI capture; other editions retain their original tour.
   // Re-recorded 19 Nov 2026 with the live frontend (output/deck-rerecord-2026-11-19): same gates, 5,751 / 4,234 (73.62 %).
   const mouseGatingTour = FIGS["s-gate-app"];
-  const rcc19GatingTour = tour({"on": [-1, 0, 0, 1, 1, 2], "chapters": [[{"img": "thesis/gt-00-canvas.jpg", "cam": [800, 500, 1], "ring": null, "cur": null, "cap": "<b>Patient 5 tumor</b>: 11,502 T cells from the processed kidney-study files.", "hold": 1600}, {"cam": [1160, 590, 1.5], "cur": [1212, 623], "hold": 1200}, {"tap": true, "hold": 400}, {"img": "thesis/gt-01-studio.jpg", "cam": [800, 500, 1], "cur": null, "hold": 1200}, {"cam": [640, 440, 1.25], "cap": "<b>11,502 cells = 100%</b> of this analysis."}], [{"cur": [382, 153], "hold": 1100, "cam": [600, 330, 1.75], "ring": null, "cap": "Choose the markers. <b>X = CD4</b>…"}, {"tap": true, "hold": 400}, {"img": "thesis/gt-02-x1-menu.jpg", "cur": [510, 405], "ring": [[376, 390, 268, 30]], "hold": 1300}, {"tap": true, "hold": 400}, {"img": "thesis/gt-03-x1-set.jpg", "ring": null, "cur": [417, 153], "cap": "…and <b>CD8</b> on Y.", "hold": 1200}, {"tap": true, "hold": 400}, {"img": "thesis/gt-04-y1-menu.jpg", "cur": [545, 338], "ring": [[411, 323, 268, 30]], "hold": 1300}, {"tap": true, "hold": 400}, {"img": "thesis/gt-05-y1-set.jpg", "cam": [760, 450, 1.5], "ring": null, "cur": null, "cap": "<b>CD4 × CD8</b>: two clear groups."}], [{"cur": [347, 153], "hold": 1100, "cam": [760, 450, 1.5], "ring": null, "cap": "<b>Add ROI</b>, then draw around the CD8 cells."}, {"tap": true, "hold": 400}, {"img": "thesis/gt-06-add1.jpg"}, {"cur": [557, 492], "hold": 900, "curT": null}, {"img": "thesis/gt-07-g1-drag0.01.jpg", "cur": [559, 489], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-08-g1-drag0.041.jpg", "cur": [566, 480], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-09-g1-drag0.092.jpg", "cur": [577, 464], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-10-g1-drag0.163.jpg", "cur": [593, 442], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-11-g1-drag0.255.jpg", "cur": [613, 414], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-12-g1-drag0.367.jpg", "cur": [638, 379], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-13-g1-drag0.5.jpg", "cur": [667, 338], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-14-g1-drag0.633.jpg", "cur": [697, 297], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-15-g1-drag0.745.jpg", "cur": [722, 262], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-16-g1-drag0.837.jpg", "cur": [742, 234], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-17-g1-drag0.908.jpg", "cur": [758, 212], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-18-g1-drag0.959.jpg", "cur": [769, 196], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-19-g1-drag0.99.jpg", "cur": [776, 186], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-20-g1-drag1.jpg", "cur": [778, 183], "curT": 150, "fade": 90, "hold": 600}, {"img": "thesis/gt-21-g1-prompt.jpg", "cam": [800, 480, 1.7], "cur": null, "cap": "Give it a name.", "hold": 1300}, {"img": "thesis/gt-22-g1-typed.jpg", "cur": [941, 567], "hold": 1200}, {"tap": true, "hold": 400}, {"img": "thesis/gt-23-g1-saved.jpg", "cam": [640, 440, 1.25], "cur": null, "ring": [[44, 318, 262, 26]], "cap": "<b>CD8 T cells · 5,751</b>: half of the input."}], [{"cur": [143, 331], "hold": 1100, "cam": [420, 520, 1.6], "ring": null, "cap": "Now a gate <b>inside</b> it: right-click its name…"}, {"tap": true, "hold": 400}, {"img": "thesis/gt-24-ctx.jpg", "cur": [290, 515], "hold": 1100}, {"tap": true, "hold": 400}, {"img": "thesis/gt-25-ctx-create.jpg", "cur": [311, 552], "cap": "Create → <b>Add Child Gate</b>.", "hold": 1200}, {"tap": true, "hold": 400}, {"img": "thesis/gt-26-child-added.jpg", "cam": [640, 440, 1.25], "cur": null, "cap": "The child only sees the <b>5,751 CD8 T cells</b>.", "hold": 1800}, {"cur": [382, 153], "hold": 1100, "cam": [600, 330, 1.75], "ring": null, "cap": "Switch to <b>PD-1 × TIM-3</b>."}, {"tap": true, "hold": 400}, {"img": "thesis/gt-27-x2-menu.jpg", "cur": [510, 338], "ring": [[376, 323, 268, 30]], "hold": 1300}, {"tap": true, "hold": 400}, {"img": "thesis/gt-28-x2-set.jpg", "ring": null, "cur": [417, 153], "hold": 900}, {"tap": true, "hold": 400}, {"img": "thesis/gt-29-y2-menu.jpg", "cur": [545, 375], "ring": [[411, 360, 268, 30]], "hold": 1300}, {"tap": true, "hold": 400}, {"img": "thesis/gt-30-y2-set.jpg", "cam": [760, 450, 1.5], "ring": null, "cur": null, "cap": "CD8 T cells only: the <b>exhausted cells</b> sit top right."}], [{"cur": [636, 153], "hold": 1100, "cam": [760, 450, 1.5], "ring": null, "cap": "Draw the <b>PD-1⁺ TIM-3⁺</b> window."}, {"tap": true, "hold": 400}, {"img": "thesis/gt-31-rect-tool.jpg"}, {"cur": [788, 545], "hold": 900}, {"img": "thesis/gt-32-g2-drag0.01.jpg", "cur": [790, 541], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-33-g2-drag0.041.jpg", "cur": [798, 530], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-34-g2-drag0.092.jpg", "cur": [811, 512], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-35-g2-drag0.163.jpg", "cur": [829, 486], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-36-g2-drag0.255.jpg", "cur": [853, 453], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-37-g2-drag0.367.jpg", "cur": [882, 412], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-38-g2-drag0.5.jpg", "cur": [916, 364], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-39-g2-drag0.633.jpg", "cur": [950, 316], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-40-g2-drag0.745.jpg", "cur": [979, 275], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-41-g2-drag0.837.jpg", "cur": [1003, 242], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-42-g2-drag0.908.jpg", "cur": [1021, 216], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-43-g2-drag0.959.jpg", "cur": [1034, 198], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-44-g2-drag0.99.jpg", "cur": [1042, 187], "curT": 150, "fade": 90, "hold": 165}, {"img": "thesis/gt-45-g2-drag1.jpg", "cur": [1045, 183], "curT": 150, "fade": 90, "hold": 600}, {"img": "thesis/gt-46-g2-prompt.jpg", "cam": [800, 480, 1.7], "cur": null, "cap": "Save its name…", "hold": 1100}, {"img": "thesis/gt-47-g2-typed.jpg", "cur": [941, 567], "hold": 1200}, {"tap": true, "hold": 400}, {"img": "thesis/gt-48-g2-saved.jpg", "cam": [760, 450, 1.5], "cur": null, "ring": null, "cap": "<b>4,234 cells</b> are PD-1⁺ and TIM-3⁺."}], [{"cur": [416, 91], "hold": 1100, "cam": [560, 200, 1.6], "ring": null, "cap": "Open <b>Statistics</b>."}, {"tap": true, "hold": 400}, {"img": "thesis/gt-49-stats.jpg", "cam": [800, 500, 1], "cur": null, "hold": 1100}, {"cam": [955, 330, 1.18], "ring": [[332, 276, 1245, 48]], "cap": "The same <b>4,234 cells</b>: <b>73.6% of the CD8 T cells</b>, <b>36.8% of the input</b>."}]]});
+  // Kidney study: animate the region and input field over stable application captures.
+  const NAME_FIELD = [911 / 1.5, 494, 386, 42]; // Name ROI gate input, captured at 1.5×
+  const FILE_GRID = [740, 460, 1.12];
+  const rcc19GatingTour = tour({
+    cut: true,
+    on: [-1, 0, 0, 1, 1, 2, 2, 3, 3],
+    chapters: [
+      [
+        { img: "thesis/gt-00-canvas.jpg", cam: [800, 500, 1], ring: null, cur: null, cap: "<b>Patient 5 tumor</b>: 11,502 T cells from the processed kidney-study files.", hold: 1600 },
+        { cam: [1160, 590, 1.5], cur: [1212, 623], hold: 1200 },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-01-studio.jpg", cam: [800, 500, 1], cur: null, hold: 1200 },
+        { cam: [640, 440, 1.25], cap: "<b>11,502 cells = 100%</b> of this analysis." },
+      ],
+      [
+        { cur: [382, 153], hold: 1100, cam: [600, 330, 1.75], ring: null, cap: "Choose the markers. <b>X = CD4</b>…" },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-02-x1-menu.jpg", cur: [510, 405], ring: [[376, 390, 268, 30]], hold: 1300 },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-03-x1-set.jpg", ring: null, cur: [417, 153], cap: "…and <b>CD8</b> on Y.", hold: 1200 },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-04-y1-menu.jpg", cur: [545, 338], ring: [[411, 323, 268, 30]], hold: 1300 },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-05-y1-set.jpg", cam: [760, 450, 1.5], ring: null, cur: null, cap: "<b>CD4 × CD8</b>: two clear groups." },
+      ],
+      [
+        { cur: [347, 153], hold: 1100, cam: [760, 450, 1.5], ring: null, cap: "<b>Add ROI</b>, then draw around the CD8 cells." },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-06-add1.jpg" },
+        { cur: [557, 492], hold: 900, curT: null },
+        { roi: { from: [556.6, 492.4], to: [778, 183.4], clip: [559.6, 196.3], ms: 1450 }, hold: 260 },
+        { img: "thesis/gt-21-g1-prompt.jpg", cam: [800, 480, 1.7], cur: null, cap: "Give it a name.", hold: 850 },
+        { type: { sprite: "thesis/gt-g1-keys.png", box: NAME_FIELD, beats: [110, 88, 150, 110, 120, 145, 76, 118, 110, 106, 200] } },
+        { img: "thesis/gt-22-g1-typed.jpg", cur: [941, 567], hold: 720 },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-23-g1-saved.jpg", cam: [640, 440, 1.25], cur: null, ring: [[44, 318, 262, 26]], cap: "<b>CD8 T cells · 5,751</b>: half of the input." },
+      ],
+      [
+        { cur: [143, 331], hold: 1100, cam: [420, 520, 1.6], ring: null, cap: "Now a gate <b>inside</b> it: right-click its name…" },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-24-ctx.jpg", cur: [290, 515], hold: 1100 },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-25-ctx-create.jpg", cur: [311, 552], cap: "Create → <b>Add Child Gate</b>.", hold: 1200 },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-26-child-added.jpg", cam: [640, 440, 1.25], cur: null, cap: "The child only sees the <b>5,751 CD8 T cells</b>.", hold: 1800 },
+        { cur: [382, 153], hold: 1100, cam: [600, 330, 1.75], ring: null, cap: "Switch to <b>PD-1 × TIM-3</b>." },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-27-x2-menu.jpg", cur: [510, 338], ring: [[376, 323, 268, 30]], hold: 1300 },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-28-x2-set.jpg", ring: null, cur: [417, 153], hold: 900 },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-29-y2-menu.jpg", cur: [545, 375], ring: [[411, 360, 268, 30]], hold: 1300 },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-30-y2-set.jpg", cam: [760, 450, 1.5], ring: null, cur: null, cap: "CD8 T cells only: the <b>exhausted cells</b> sit top right." },
+      ],
+      [
+        { cur: [636, 153], hold: 1100, cam: [760, 450, 1.5], ring: null, cap: "Draw the <b>PD-1⁺ TIM-3⁺</b> window." },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-31-rect-tool.jpg" },
+        { cur: [788, 545], hold: 900 },
+        { roi: { from: [787.5, 544.9], to: [1045, 183], clip: [559.6, 196.3], ms: 1450 }, hold: 260 },
+        { img: "thesis/gt-46-g2-prompt.jpg", cam: [800, 480, 1.7], cur: null, cap: "Save its name…", hold: 850 },
+        { type: { sprite: "thesis/gt-g2-keys.png", box: NAME_FIELD, beats: [108, 90, 118, 90, 160, 140, 115, 92, 114, 118, 104, 200] } },
+        { img: "thesis/gt-47-g2-typed.jpg", cur: [941, 567], hold: 720 },
+        { tap: true, hold: 400 },
+        { img: "thesis/gt-48-g2-saved.jpg", cam: [760, 450, 1.5], cur: null, ring: null, cap: "<b>4,234 cells</b> are PD-1⁺ and TIM-3⁺." },
+      ],
+      [
+        { img: "thesis/gt-multi-source.jpg", cur: [1384, 256], cam: [1030, 420, 1.13], cap: "With all 12 files selected, switch to <b>By FCS</b> to review the shared gates.", hold: 1150 },
+        { tap: true, hold: 350 },
+        { img: "thesis/gt-by-fcs.jpg", cam: FILE_GRID, cur: null, hold: 1050 },
+        { cur: [143, 331], hold: 850 },
+        { tap: true, hold: 350 },
+        { img: "thesis/gt-by-fcs-parent.jpg", cur: null, cap: "The same <b>CD8 gate</b> appears on each FCS file. Cell distributions vary by sample." },
+      ],
+      [
+        { cur: [151, 365], cap: "Select the nested gate in the shared tree.", hold: 950 },
+        { tap: true, hold: 350 },
+        { img: "thesis/gt-by-fcs.jpg", cam: FILE_GRID, cur: null, cap: "Each file also inherits the <b>PD-1⁺ TIM-3⁺ gate</b> within its CD8 T cells." },
+      ],
+      [
+        { cur: [416, 91], cam: [550, 235, 1.17], cap: "Open <b>Statistics</b> to compare counts and percentages file by file.", hold: 1050 },
+        { tap: true, hold: 350 },
+        { img: "thesis/gt-by-fcs-statistics.jpg", cam: [952, 416, 1.18], cur: null, ring: [[332, 685, 1243, 42]], cap: "<b>One row per FCS.</b> In P5 tumor the same 4,234 cells are 73.62% of CD8 T cells and 36.81% of the input." },
+      ],
+      [
+        { cur: [348, 91], cam: [615, 350, 1.16], ring: null, cap: "Return to <b>Plots</b> for the combined view.", hold: 950 },
+        { tap: true, hold: 350 },
+        { img: "thesis/gt-combined.jpg", cam: FULL, cur: null, ring: [[16, 280, 280, 102]], cap: "<b>All 12 FCS files.</b> The pooled percentages use summed cell counts for each denominator." },
+      ],
+    ],
+  });
   FIGS["s-gate-app"] = {
     init(el) { this.current = el.hasAttribute("data-rcc19-gating") ? rcc19GatingTour : mouseGatingTour; this.current.init(el); },
     enter() { this.current.enter(); }, leave() { this.current.leave(); }, step(n) { this.current.step(n); }

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FlowCV: integrated analysis of high-dimensional flow cytometry · ASOCHIN 2026</title>
 <link rel="icon" href="assets/img/favicon.svg">
-<link rel="stylesheet" href="code/deck.css">
+<link rel="stylesheet" href="code/deck.css?v=20261120">
 <link rel="stylesheet" href="code/presenter-tools.css">
 </head>
 <body class="deck-spectral">
@@ -243,18 +243,26 @@
   <h1>Population frequencies depend <em>on the denominator</em></h1>
   <div class="body" style="gap:40px;align-items:flex-start;margin-top:30px">
     <div class="tour">
-      <div class="tour-screen"><span class="tag blue tour-badge">FlowCV · patient 5 tumor · real screens</span>
-        <div class="tour-world"><img class="tour-img on" data-img="thesis/gt-00-canvas.jpg" src="assets/app/thesis/gt-00-canvas.jpg" alt=""><img class="tour-img" alt=""><i class="tour-cur"></i></div>
+      <div class="tour-screen">
+        <div class="tour-world">
+          <img class="tour-img on" data-img="thesis/gt-00-canvas.jpg" src="assets/app/thesis/gt-00-canvas.jpg" alt=""><img class="tour-img" alt="">
+          <div class="tour-roi" hidden aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <div class="tour-entry" hidden aria-hidden="true"></div>
+          <i class="tour-cur"></i>
+        </div>
       </div><p class="tour-cap"></p>
     </div>
     <div class="col grow chaps gating-story tour-side">
-      <div class="gating-base"><span class="gb-k">Where 100% starts</span>
-        <ol><li>Kidney dataset<b>12 files</b></li><li class="here">Patient 5 tumor = 100%<b>11,502 T cells</b></li></ol></div>
+      <div class="gating-base"><span class="gb-k">Starting sample</span>
+        <ol><li>Kidney dataset<b>12 files</b></li><li class="here">Patient 5 tumor<b>11,502 T cells</b></li></ol></div>
       <div class="chap"><b>1</b><div><h3>Define the parent population</h3><p>CD4 × CD8: the CD8 T cells.</p><strong data-step="2">5,751 cells · 50% of input</strong></div></div>
       <div class="chap"><b>2</b><div><h3>Select the nested phenotype</h3><p>PD-1 × TIM-3: the PD-1⁺ TIM-3⁺ cells.</p><strong data-step="4">4,234 cells</strong></div></div>
-      <div class="chap"><b>3</b><div><h3>Specify the denominator</h3><p>The same 4,234 cells are:</p><strong data-step="5">73.6% of the CD8 T cells<br>36.8% of the input</strong></div></div>
-      <p class="gating-bridge" data-step="5">Next: all twelve samples at once.</p>
-      <i class="mk" data-step="1"></i><i class="mk" data-step="3"></i>
+      <div class="chap"><b>3</b><div><h3>Reuse the same gates</h3><p>All 12 FCS files inherit both gates.</p></div></div>
+      <div class="chap"><b>4</b><div><h3>Specify the denominator</h3><p>Report frequencies per FCS or across all cells.</p>
+        <strong data-step="7">P5 tumor · 4,234 cells<br>73.62% of CD8 T cells · 36.81% of input</strong>
+        <strong data-step="8">All 12 FCS · 22,467 cells<br>32.75% of 68,603 CD8 T cells<br>16.28% of 138,024 input cells</strong>
+      </div></div>
+      <i class="mk" data-step="1"></i><i class="mk" data-step="3"></i><i class="mk" data-step="5"></i><i class="mk" data-step="6"></i>
     </div>
   </div>
   <div class="foot"><span class="src"></span><span class="num"></span></div>
@@ -607,7 +615,7 @@ window.PRESENTER = {
 <script src="code/rcc-steps-fig.js"></script>
 <script src="data/rcc-trajectories.js"></script>
 <script src="code/rcc-traj-fig.js"></script>
-<script src="code/apptour.js"></script>
+<script src="code/apptour.js?v=20261120"></script>
 <script src="code/deck.js"></script>
 <script src="code/presenter-tools.js"></script>
 </body>

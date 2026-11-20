@@ -806,6 +806,13 @@ p .saved { margin: 0 8px 0 0; }
 .tour-world { position: absolute; left: 0; top: 0; width: 1600px; height: 1000px; transform-origin: 0 0; transform: scale(.725); transition: transform .95s cubic-bezier(.4,0,.2,1); }
 .tour-img { position: absolute; inset: 0; width: 1600px; height: 1000px; opacity: 0; transition: opacity .38s ease; }
 .tour-img.on { opacity: 1; }
+.guided-gating .tour-img { transition: none; }
+.tour-roi { position: absolute; inset: 0; pointer-events: none; }
+.tour-roi::before { content: ""; position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); box-sizing: border-box; outline: 2px solid rgb(37 99 235 / 81%); outline-offset: -1px; background: rgb(37 99 235 / 20%); }
+.tour-roi i { position: absolute; left: var(--x); top: var(--y); width: 11px; height: 11px; border: 1.5px solid #ecfeff; border-radius: 50%; background: #2563eb; transform: translate(-50%, -50%); }
+.tour-roi i:nth-child(even) { left: calc(var(--x) + var(--w)); }
+.tour-roi i:nth-child(n+3) { top: calc(var(--y) + var(--h)); }
+.tour-entry { position: absolute; background-repeat: no-repeat; pointer-events: none; }
 .tour-ring { position: absolute; border: 3px solid #f59e0b; border-radius: 10px; box-shadow: 0 0 0 5px rgba(245,158,11,.22); animation: tour-ring .5s ease both; pointer-events: none; }
 @keyframes tour-ring { from { opacity: 0; transform: scale(1.06); } to { opacity: 1; transform: none; } }
 .tour-cur { position: absolute; left: 1500px; top: 900px; width: 30px; height: 30px; margin: -3px 0 0 -6px; opacity: 0; transition: left .75s cubic-bezier(.4,0,.2,1), top .75s cubic-bezier(.4,0,.2,1), opacity .25s; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 2l14 11h-8l-3 8z' fill='%230f172a' stroke='%23fff' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center/contain; z-index: 3; }
@@ -820,6 +827,8 @@ p .saved { margin: 0 8px 0 0; }
 .tour-side .chap h3 { font-size: 29px; }
 .tour-side .chap p { font-size: 22px; }
 .tour-side .chap strong { display: block; font-size: 22px; line-height: 1.35; margin-top: 8px; color: var(--ink); font-weight: 600; }
+.guided-gating .gating-story { gap: 11px; }
+.guided-gating .gating-story .chap { padding-block: 13px; }
 .tour-bridge { font-size: 25px; line-height: 1.3; margin: 6px 0 0 4px; color: var(--blue); }
 /* export stage: the real settings column scrolls; the real PPTX slide and package files appear */
 @keyframes step-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
