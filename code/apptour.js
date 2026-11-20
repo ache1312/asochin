@@ -183,37 +183,29 @@
     };
   }
 
-  // ---------- slide 11 · what a colleague sees at sign-in, then the export ----------
-  const FULL = [800, 500, 1], MODAL = [800, 500, 1.36];
+  const FULL = [800, 500, 1];
+  // Slide 13 · the same CD8 workflow and its Figure Studio export.
   FIGS["s-share"] = tour({
-    on: [0, 1, 1, 2],
+    on: [0, 1, 2, 2],
     chapters: [
-      [ { img: "sh-0-page.jpg", cam: FULL, ring: null, cur: null, out: false, cap: "Sergio signs in to FlowCV with his institutional account.", hold: 1300 },
-        { img: "sh-1-dataset.jpg", hold: 900 },
-        { cam: MODAL, ring: [[455, 176, 690, 96]], cap: "A notice is waiting: <b>Catalina Bustamante shared a dataset</b>, with a preview and the access level.", hold: 400 } ],
-      [ { img: "sh-3-analysis.jpg", cam: MODAL, ring: [[476, 408, 648, 322]], cur: null, cap: "Second notice: <b>the whole analysis</b>, with its graph of modules.", hold: 400 } ],
-      [ { ring: null, cur: [1068, 800], cap: "Open it…", hold: 900 }, { tap: true, hold: 450 },
-        { img: "sh-4-workflow.jpg", cam: FULL, cur: null, hold: 1100 },
-        { cam: [640, 330, 1.3], ring: [[35, 142, 760, 132]], cap: "The same workflow, with <b>editor</b> access: modules, parameters and results as Catalina left them.", hold: 2600 },
-        { cam: [1000, 620, 1.18], ring: null, hold: 300 } ],
-      // chapter 3 (11 Nov 2026): the redesigned Export Studio (local build of the current source, isolated API; shots in
-      // output/talk-app-slides-2026-11-09/shots-v2, geometry in geo.json). Ends on the real package it downloaded.
-      [ { img: "ex2-00-canvas.jpg", cam: FULL, ring: null, out: false, cur: [1479, 575], cap: "To take results out: open <b>Export Studio</b> on the last module.", hold: 1100 }, { tap: true, hold: 400 },
-        { img: "ex2-01-studio.jpg", cur: null, ring: [[6, 70, 946, 924], [964, 71, 629, 924]], cap: "Left: <b>what goes in the package</b>. Right: a <b>preview</b> of the files, before downloading.", hold: 2800 },
-        { cam: [480, 250, 1.6], ring: null, cur: [38, 197], cap: "Tick the figure…", hold: 900 }, { tap: true, img: "ex2-02-figure.jpg", hold: 600 },
-        { cur: [121, 257], hold: 550 }, { tap: true, img: "ex2-03-fmt-svg.jpg", hold: 400 },
-        { cur: [189, 257], hold: 500 }, { tap: true, img: "ex2-04-fmt-pdf.jpg", hold: 400 },
-        { cur: [292, 257], cap: "…and its formats, up to <b>PowerPoint 16:9</b>.", hold: 600 }, { tap: true, img: "ex2-05-fmt-powerpoint.jpg", hold: 900 },
-        { cam: [1180, 250, 1.7], ring: [[972, 156, 614, 200]], cur: null, cap: "The preview updates: <b>one file per format</b>, named before anything is written.", hold: 2600 },
-        // 19 Nov 2026 (live frontend): cell data starts off; choosing the source ticks every file and marker by default.
-        { cam: [480, 430, 1.45], ring: [[19, 381, 919, 44]], cur: [360, 403], cap: "Cell data comes too: <b>one CSV per sample</b>. Choose its source…", hold: 1300 }, { tap: true, img: "ex2-06-data.jpg", ring: null, cur: null, hold: 700 },
-        { cam: [480, 600, 1.3], ring: [[19, 494, 919, 240]], cap: "…and <b>every file and marker</b> is ticked by default.", hold: 2200 },
-        { cam: FULL, ring: [[972, 156, 614, 280]], cur: [1495, 962], cap: "Every requirement is ticked: <b>Download package</b>.", hold: 1400 }, { tap: true, hold: 400 },
-        { img: "ex2-08-downloaded.jpg", cur: null, ring: [[6, 70, 242, 28]], cap: "Downloaded.", hold: 1300 },
-        { out: true, ring: null, cap: "What arrived: the <b>real PowerPoint slide</b> FlowCV wrote, and the six files the preview listed." } ],
+      [
+        { img: "cd8/share-viewer.jpg", cam: FULL, ring: [[17, 89, 1566, 40]], cur: null,
+          cap: "A collaborator opens <b>ccRCC – CD8 blood and tumor</b> with read-only access." },
+      ],
+      [
+        { img: "cd8/share-layout.jpg", cam: FULL, ring: null, cur: null,
+          cap: "The shared analysis opens the same CD8 figure in <b>Figure Studio</b>." },
+      ],
+      [
+        { img: "cd8/export-menu.jpg", cam: FULL, ring: null, cur: null,
+          cap: "The owner exports the figure from FlowCV." },
+      ],
+      [
+        { img: "cd8/export-preview.jpg", cam: FULL, ring: null, cur: null,
+          cap: "The exported file shows the paired <b>blood and tumor CD8 figure</b>." },
+      ],
     ],
   });
-
 
   // ---------- new slide after slide 8 · a chain of decisions (11 Nov 2026) ----------
   // Real screens of the thesis analysis growing module by module, with real drag-and-drop onto the previous module
