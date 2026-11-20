@@ -991,8 +991,9 @@ p .saved { margin: 0 8px 0 0; }
 .ack-centro { width: 148px; height: auto; }
 .ack-logos .ack-hblt { height: 58px; width: auto; }
 /* title slide: authors use the full line width (10 Nov 2026) */
-#s-title .who { right: 60px; }
-#s-title .who .authors { max-width: none; font-size: 22px; white-space: nowrap; }
+#s-title .who { right: 120px; bottom: 84px; }
+#s-title .who .authors { max-width: none; font-size: 25px; line-height: 1.5; color: #e2e8f0; margin-bottom: 10px; }
+#s-title .who .affil { display: block; font-size: 20px; letter-spacing: .02em; color: #94a3b8; }
 
 /* s-ctend · the CD8 T cells of the title slide, with names (figs.js cd8Map) */
 #s-ctend canvas { position: absolute; inset: 0; }
