@@ -970,27 +970,25 @@ p .saved { margin: 0 8px 0 0; }
 #s-concl .cc3-road h3::before { content: "→ "; color: var(--blue); }
 #s-concl .cc3-road p { font-size: 22px; line-height: 1.35; color: var(--ink-2); margin: 0; }
 .acknowledgements { padding-inline: 120px; }
-.ack-main { display: grid; grid-template-columns: 580px minmax(0, 1fr); align-items: center; gap: 130px; margin-top: 106px; }
-.ack-opening h1 { font-size: 78px; font-weight: 600; }
-.ack-opening p { max-width: 545px; margin: 28px 0 0; color: var(--ink-2); font-size: 35px; line-height: 1.38; text-wrap: pretty; }
-.ack-team h2 { margin: 0 0 26px; font-size: 26px; font-weight: 600; }
-.ack-portraits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 24px; margin: 0; padding: 0; list-style: none; }
-.ack-portraits li { display: flex; align-items: center; gap: 16px; color: var(--ink-2); font-size: 22px; line-height: 1.2; }
-.ack-portraits img { flex: none; width: 98px; height: 98px; border-radius: 5px; object-fit: cover; object-position: 50% 35%; }
-.ack-portraits span { max-width: 137px; text-wrap: balance; }
-.ack-clinic { display: flex; align-items: center; gap: 18px; margin-top: 28px; }
-.ack-clinic img { flex: none; width: 98px; height: 98px; border-radius: 5px; object-fit: cover; object-position: 50% 30%; }
-.ack-clinic div { display: grid; gap: 2px; font-size: 20px; color: var(--muted); }
-.ack-clinic strong { font-size: 22px; font-weight: 600; color: var(--ink-2); }
-.ack-clinic .ack-hblt { width: auto; height: 52px; margin-top: 8px; object-fit: contain; border-radius: 0; }
-.rcc-source { display: flex; align-items: center; gap: 14px; margin-top: 14px; color: var(--muted); font-size: 18px; letter-spacing: .04em; text-transform: uppercase; }
-.rcc-source img { height: 50px; width: auto; }
-.ack-support { display: grid; grid-template-columns: 304px 1fr 1fr; align-items: center; gap: 62px; margin-top: 83px; padding-top: 32px; border-top: 1px solid var(--line-2); }
-.ack-support h2 { margin: 0 0 9px; font-size: 24px; font-weight: 600; }
-.ack-support p { margin: 4px 0 0; color: var(--muted); font-size: 22px; line-height: 1.35; }
-.ack-logos { display: flex; align-items: center; gap: 24px; }
-.ack-anid { width: 132px; height: auto; }
-.ack-centro { width: 145px; height: auto; margin-left: -12px; }
+.ack-main { display: grid; grid-template-columns: 600px minmax(0, 1fr); align-items: start; gap: 90px; margin-top: 36px; }
+.ack-opening h1 { font-size: 74px; font-weight: 600; margin: 0; }
+.ack-opening p { max-width: 590px; margin: 20px 0 0; color: var(--ink-2); font-size: 29px; line-height: 1.36; text-wrap: pretty; }
+.ack-place { margin: 28px 0 0; }
+.ack-place img { display: block; width: 600px; height: 300px; object-fit: cover; object-position: 50% 42%; border-radius: 12px; }
+.ack-place figcaption { margin-top: 10px; font-size: 18px; color: var(--muted); }
+.ack-team h2 { margin: 14px 0 26px; font-size: 27px; font-weight: 600; }
+.ack-portraits { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 26px 20px; margin: 0; padding: 0; list-style: none; }
+.ack-portraits li { display: grid; justify-items: center; align-content: start; gap: 10px; text-align: center; color: var(--ink-2); font-size: 20px; line-height: 1.2; }
+.ack-portraits img { width: 128px; height: 128px; border-radius: 8px; object-fit: cover; object-position: 50% 32%; }
+.ack-portraits span { max-width: 170px; text-wrap: balance; }
+.ack-support { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 18px 80px; margin-top: 34px; padding-top: 24px; border-top: 1px solid var(--line-2); }
+.ack-support h2 { margin: 0 0 6px; font-size: 22px; font-weight: 600; }
+.ack-support p { margin: 2px 0 0; color: var(--muted); font-size: 20px; line-height: 1.35; }
+.ack-logos { grid-column: 1 / -1; display: flex; align-items: center; gap: 46px; }
+.ack-uss-fcv { height: 62px; width: auto; }
+.ack-anid { width: 112px; height: auto; }
+.ack-centro { width: 132px; height: auto; }
+.ack-logos .ack-hblt { height: 56px; width: auto; }
 /* title slide: authors use the full line width (10 Nov 2026) */
 #s-title .who { right: 60px; }
 #s-title .who .authors { max-width: none; font-size: 22px; white-space: nowrap; }
