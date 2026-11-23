@@ -525,13 +525,6 @@
         const px = sx(val(this.hi, "CD4")), py = sy(val(this.hi, "CD8"));
         x.strokeStyle = "#0284c7"; x.lineWidth = 3; x.globalAlpha = A * Math.min(1, this.hiT * 1.5); x.beginPath(); x.arc(px, py, 11, 0, 7); x.stroke(); x.globalAlpha = A;
       }
-      if (this.me != null && this.dots > 0 && this.order.indexOf(this.me) < this.dots) { // the cell we follow
-        const px = sx(val(this.me, "CD4")), py = sy(val(this.me, "CD8"));
-        x.globalAlpha = A; x.fillStyle = "#f59e0b"; x.beginPath(); x.arc(px, py, 6, 0, 7); x.fill();
-        x.strokeStyle = "#b45309"; x.lineWidth = 3.5; x.beginPath(); x.arc(px, py, 15, 0, 7); x.stroke();
-        x.font = "800 22px 'Source Sans 3'"; x.textAlign = "left"; x.lineJoin = "round"; x.strokeStyle = "rgba(255,255,255,.95)"; x.lineWidth = 6;
-        const t = tr("esta célula", "this cell"); x.textAlign = "right"; x.strokeText(t, px - 20, py + 40); x.fillStyle = "#b45309"; x.fillText(t, px - 20, py + 40); x.textAlign = "left";
-      }
       if (this.la > 0) { // the three groups, before any gate is drawn
         x.font = "700 21px 'Source Sans 3'"; x.textAlign = "center"; x.lineJoin = "round";
         for (const g of this.groups) { const px = sx(g.p[0]), py = sy(g.p[1]) - 62; x.globalAlpha = A * this.la; x.strokeStyle = "rgba(255,255,255,.92)"; x.lineWidth = 6; x.strokeText(g.t, px, py); x.fillStyle = "#0f172a"; x.fillText(g.t, px, py); }
@@ -540,8 +533,43 @@
       if (this.showGate) {
         const G = GATE_CD4, g = [Math.max(G[0], xr[0]), Math.max(G[1], yr[0]), Math.min(G[2], xr[1]), Math.min(G[3], yr[1])], gx = sx(g[0]), gy = sy(g[3]), gw = sx(g[2]) - gx, gh = sy(g[1]) - gy;
         x.globalAlpha = A * this.ga; x.fillStyle = "rgba(37,99,235,.08)"; x.fillRect(gx, gy, gw, gh); x.strokeStyle = "#2563eb"; x.lineWidth = 3; x.strokeRect(gx, gy, gw, gh);
-        x.fillStyle = "#1d4ed8"; x.font = "700 22px 'Source Sans 3'"; x.textAlign = "right";
-        x.fillText(`CD4+ CD8− · ${pct(GSET.n2 / N)}`, gx + gw - 8, gy - 10); x.globalAlpha = A;
+        x.font = "700 22px 'Source Sans 3'"; x.textAlign = "right"; x.lineJoin = "round";
+        x.strokeStyle = "rgba(255,255,255,.92)"; x.lineWidth = 5; x.strokeText(`CD4+ CD8− · ${pct(GSET.n2 / N)}`, gx + gw - 8, gy - 10);
+        x.fillStyle = "#1d4ed8"; x.fillText(`CD4+ CD8− · ${pct(GSET.n2 / N)}`, gx + gw - 8, gy - 10); x.globalAlpha = A;
+      }
+      if (this.me != null && this.dots > 0 && this.order.indexOf(this.me) < this.dots) { // the cell we follow — drawn last so blue gate never obscures it
+        const px = sx(val(this.me, "CD4")), py = sy(val(this.me, "CD8"));
+        const t = tr("esta célula", "this cell");
+        x.save(); x.globalAlpha = A; x.lineJoin = "round"; x.lineCap = "round";
+        // High-contrast badge placed in the clean white space to the lower-left of GATE_CD4 with a leader line to the cell
+        x.font = "800 21px 'Source Sans 3'";
+        const tw = x.measureText(t).width, padX = 11, bh = 31, bw = tw + padX * 2;
+        const gateLeft = sx(Math.max(GATE_CD4[0], xr[0]));
+        const bx = Math.min(px - 24, gateLeft - 14) - bw;
+        const by = Math.min(H - pad.b - bh - 10, py + 60);
+        const ax = bx + bw, ay = by + bh * 0.45;
+        const dx = px - ax, dy = py - ay, dist = Math.hypot(dx, dy) || 1;
+        const tx = px - (dx / dist) * 18, ty = py - (dy / dist) * 18;
+        // White-cased leader line so it reads crisply across blue dots and the blue gate border
+        x.strokeStyle = "rgba(255,255,255,.95)"; x.lineWidth = 5.5; x.beginPath(); x.moveTo(ax, ay); x.lineTo(tx, ty); x.stroke();
+        x.strokeStyle = "#b45309"; x.lineWidth = 2.4; x.beginPath(); x.moveTo(ax, ay); x.lineTo(tx, ty); x.stroke();
+        // Rounded opaque white pill badge with amber border
+        const rad = 8;
+        x.beginPath();
+        x.moveTo(bx + rad, by); x.lineTo(bx + bw - rad, by); x.quadraticCurveTo(bx + bw, by, bx + bw, by + rad);
+        x.lineTo(bx + bw, by + bh - rad); x.quadraticCurveTo(bx + bw, by + bh, bx + bw - rad, by + bh);
+        x.lineTo(bx + rad, by + bh); x.quadraticCurveTo(bx, by + bh, bx, by + bh - rad);
+        x.lineTo(bx, by + rad); x.quadraticCurveTo(bx, by, bx + rad, by); x.closePath();
+        x.fillStyle = "rgba(255,255,255,.97)"; x.fill();
+        x.strokeStyle = "#b45309"; x.lineWidth = 2.2; x.stroke();
+        x.fillStyle = "#92400e"; x.textAlign = "center"; x.textBaseline = "middle";
+        x.fillText(t, bx + bw / 2, by + bh / 2 + 1);
+        // White-haloed amber target bullseye so the cell stands out sharply inside the blue gated cloud
+        x.strokeStyle = "rgba(255,255,255,.96)"; x.lineWidth = 6.5; x.beginPath(); x.arc(px, py, 15, 0, 7); x.stroke();
+        x.strokeStyle = "#b45309"; x.lineWidth = 3.5; x.beginPath(); x.arc(px, py, 15, 0, 7); x.stroke();
+        x.fillStyle = "#f59e0b"; x.beginPath(); x.arc(px, py, 6.2, 0, 7); x.fill();
+        x.strokeStyle = "#ffffff"; x.lineWidth = 1.8; x.stroke();
+        x.restore();
       }
     },
   };
