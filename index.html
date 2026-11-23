@@ -13,7 +13,7 @@
 <div id="viewport"><div id="stage">
 
 
-<section class="slide dark conference-title" id="s-title" data-time="25" data-title="FlowCV: integrated analysis of high-dimensional flow cytometry">
+<section class="slide dark conference-title" id="s-title" data-time="20" data-title="FlowCV: integrated analysis of high-dimensional flow cytometry">
   <canvas id="title3d" width="3840" height="2160" style="width:1920px;height:1080px" role="img" aria-label="Rotating CD8 T-cell UMAP colored by phenotype"></canvas>
   <header class="conference-event" aria-label="IX Annual Meeting ASOCHIN">
     <p class="conference-edition">IX Annual Meeting</p>
@@ -29,9 +29,9 @@
 </section>
 
 
-<section class="slide act1" id="s-what" data-time="65" data-title="Flow cytometry measures multiple markers in each cell">
-  <h1>Flow cytometry measures <em>multiple markers in each cell</em></h1>
-  <p class="say"><span data-at="0"><b>Each point represents one cell.</b> Here, two fluorescence measurements report CD4 and CD8.</span><span data-at="1">Across thousands of cells, <b>marker distributions distinguish populations</b>.</span><span data-at="2">A <b>gate</b> selects events within a defined region: here, the <b>CD4⁺ population</b>.</span><span data-at="3"><b>7 markers</b> yield <b>21 pairwise plots</b>. Each plot shows two dimensions of the same cells.</span><span data-at="4"><b>Spectral overlap</b> must be accounted for when interpreting fluorescence measurements.</span></p>
+<section class="slide act1" id="s-what" data-time="45" data-title="2D plots and spectral overlap limit conventional panels">
+  <h1>2D plots and spectral overlap <em>limit conventional panels</em></h1>
+  <p class="say"><span data-at="0"><b>Each point represents one cell.</b> Here, two fluorescence measurements report CD4 and CD8.</span><span data-at="1">Across thousands of cells, <b>marker distributions distinguish populations</b>.</span><span data-at="2">A <b>gate</b> selects events within a defined region: here, the <b>CD4⁺ population</b>.</span><span data-at="3"><b>7 markers</b> yield <b>21 2D plots</b>. Each plot shows two dimensions of the same cells.</span><span data-at="4"><b>Spectral overlap</b> must be accounted for when interpreting fluorescence measurements.</span></p>
   <div class="body" style="gap:44px;margin-top:22px;align-items:flex-start">
     <div class="col" style="width:1040px">
       <div class="card" style="padding:0;overflow:hidden">
@@ -56,8 +56,8 @@
 </section>
 
 
-<section class="slide act1" id="s-spec" data-time="80" data-title="Spectral unmixing separates overlapping fluorescence signals">
-  <h1>Spectral unmixing separates <em>overlapping fluorescence signals</em></h1>
+<section class="slide act1" id="s-spec" data-time="60" data-title="Spectral cytometry expands panels and shifts the bottleneck">
+  <h1>Spectral cytometry expands panels <em>and shifts the bottleneck</em></h1>
   <p class="say"><span data-at="0">A <b>T cell from a renal tumor</b>: <b>64 detectors</b> sample its fluorescence spectrum.</span><span data-at="1"><b>Single-stain controls</b> provide <b>18 reference spectra</b> for this demonstration.</span><span data-at="2"><b>Unmixing estimates fluorophore contributions.</b> Marker expression then supports the cell’s phenotypic annotation.</span><span data-at="3"><b>Reference controls</b> support signal separation. The output is an estimated intensity for each fluorophore.</span><span data-at="4">The analysis must address <b>phenotypic complexity, data reuse and method integration</b>.</span></p>
   <div class="body" style="gap:36px;margin-top:22px;align-items:flex-start">
     <div class="col" style="width:1080px;gap:20px">
@@ -72,7 +72,7 @@
         </div>
         <div class="problem" data-step="4">
           <div class="ph">Three analytical challenges</div>
-          <div class="pi"><b>1</b><span>Phenotypic complexity<small>pairwise views show selected dimensions</small></span></div>
+          <div class="pi"><b>1</b><span>Phenotypic complexity<small>2D views show selected dimensions</small></span></div>
           <div class="pi"><b>2</b><span>Data reuse<small>preserve the analytical context</small></span></div>
           <div class="pi"><b>3</b><span>Method integration<small>connect inputs, decisions and outputs</small></span></div>
         </div>
@@ -90,8 +90,8 @@
 </section>
 
 
-<section class="slide act1" id="s-dims" data-time="75" data-title="Effector-memory gates contain distinct CD8 T-cell phenotypes">
-  <h1>Effector-memory gates contain <em>distinct CD8 T-cell phenotypes</em></h1>
+<section class="slide act1" id="s-dims" data-time="75" data-title="Canonical memory gates leave CD8 exhaustion unresolved">
+  <h1>Canonical memory gates <em>leave CD8 exhaustion unresolved</em></h1>
   <div class="body" style="gap:52px;align-items:flex-start">
     <div class="card" style="padding:14px 14px 4px">
       <canvas id="dims-mat" width="1520" height="1520" style="width:760px;height:760px;display:block"></canvas>
@@ -100,7 +100,7 @@
       <div class="fact" data-step="1" style="border-color:#1d4ed8"><b>This illustrative strategy uses 2 of 21 plots</b></div>
       <div class="fact" data-step="2" style="border-color:#7c3aed"><b><span id="dims-n-ex" class="in">618</span> exhausted CD8 T cells (<span id="dims-p-ex" class="in">21%</span>) inside these gates</b><span>PD-1⁺ TIM-3⁺ CD39⁺ · <span id="dims-ex-tem" class="in">599</span> (<span id="dims-p-tem" class="in">97%</span>) sit in the effector-memory gate</span></div>
       <div class="dims-zoom" id="dims-zoom-wrap"><canvas id="dims-zoom" width="1740" height="1080" style="width:870px;height:540px;display:block"></canvas></div>
-      <div class="fact" data-step="3"><b>With 50 markers: 1,225 pairwise views</b><div class="pbars" id="dims-bars"></div><span style="margin-top:2px">possible two-axis plots: n·(n−1)/2</span></div>
+      <div class="fact" data-step="3"><b>With 50 markers: 1,225 2D views</b><div class="pbars" id="dims-bars"></div><span style="margin-top:2px">possible two-axis plots: n·(n−1)/2</span></div>
       <div class="fact" data-step="4" style="border-color:var(--blue)"><b>Marker selection and gate boundaries affect annotation</b><span>Explicit gating criteria help analysts compare population definitions.</span></div>
     </div>
   </div>
@@ -109,8 +109,8 @@
 </section>
 
 
-<section class="slide act1" id="s-gold" data-time="55" data-title="Reanalysis requires more than the FCS files">
-  <h1>Reanalysis requires <em>more than the FCS files</em></h1>
+<section class="slide act1" id="s-gold" data-time="50" data-title="Reanalysis requires analytical context, not just FCS files">
+  <h1>Reanalysis requires analytical context, <em>not just FCS files</em></h1>
   <div class="body" style="gap:44px;align-items:flex-start">
     <div class="col" style="width:1180px;gap:16px">
       <div class="card" style="padding:18px 20px 8px">
@@ -140,8 +140,8 @@
 </section>
 
 
-<section class="slide act1" id="s-gap" data-time="70" data-title="From unmixing to figures: an analysis across multiple tools">
-  <h1>From unmixing to figures: <em>an analysis across multiple tools</em></h1>
+<section class="slide act1" id="s-gap" data-time="65" data-title="From unmixing to figures: fragmented tools break traceability">
+  <h1>From unmixing to figures: <em>fragmented tools break traceability</em></h1>
   <div class="body" style="flex-direction:column;gap:16px;margin-top:30px">
     <div class="routes">
       <div class="rh"></div><div class="rh">Signal<small>compensation · unmixing</small></div><div class="rh">Gating</div><div class="rh">Exploration<small>UMAP · clustering</small></div><div class="rh">Statistics and plots</div>
@@ -167,8 +167,8 @@
 </section>
 
 
-<section class="slide" id="s-rcc" data-time="45" data-title="Paired blood–tumor profiling in clear cell renal carcinoma" data-generated-illustrations>
-  <h1>Paired blood–tumor profiling <em>in clear cell renal carcinoma</em></h1>
+<section class="slide" id="s-rcc" data-time="50" data-title="Paired blood–tumor T-cell profiling in clear cell renal carcinoma" data-generated-illustrations>
+  <h1>Paired blood–tumor T-cell profiling <em>in clear cell renal carcinoma</em></h1>
   
   <div class="body rcc-fig">
     <div class="card rcc-a">
@@ -202,8 +202,8 @@
 </section>
 
 
-<section class="slide" id="s-flowcv" data-time="70" data-title="Twelve FCS files form a paired study dataset">
-  <h1>Twelve FCS files form <em>a paired study dataset</em></h1>
+<section class="slide" id="s-flowcv" data-time="65" data-title="FlowCV: from paired FCS ingestion to a linked workspace">
+  <h1>FlowCV: from paired FCS ingestion <em>to a linked workspace</em></h1>
   <div class="body" style="gap:40px;align-items:flex-start;margin-top:30px">
     <div class="col" style="width:1180px">
       <div class="vid" data-video data-chapters="0,15.9;15.9,41.8;41.8,56.2"><span class="badge tag blue">FlowCV · kidney study · real screens · typing sped up</span>
@@ -222,8 +222,8 @@
 </section>
 
 
-<section class="slide" id="s-chain" data-time="40" data-title="An explicit workflow preserves methods and parameters">
-  <h1>An explicit workflow preserves <em>methods and parameters</em></h1>
+<section class="slide" id="s-chain" data-time="50" data-title="Workflows record methods, parameters and dependencies">
+  <h1>Workflows record <em>methods, parameters and dependencies</em></h1>
   <div class="body" style="gap:40px;align-items:flex-start;margin-top:30px">
     <div class="tour">
       <div class="tour-screen"><span class="tag blue tour-badge">FlowCV · kidney study · real screens</span>
@@ -242,8 +242,8 @@
   
 </section>
 
-<section class="slide guided-gating" id="s-gate-app" data-rcc19-gating data-time="90" data-title="Population frequencies depend on the denominator" data-guided-gating>
-  <h1>Population frequencies depend <em>on the denominator</em></h1>
+<section class="slide guided-gating" id="s-gate-app" data-rcc19-gating data-time="80" data-title="Hierarchical gating tracks exact counts and denominators" data-guided-gating>
+  <h1>Hierarchical gating tracks <em>exact counts and denominators</em></h1>
   <div class="body" style="gap:40px;align-items:flex-start;margin-top:30px">
     <div class="tour">
       <div class="tour-screen">
@@ -272,8 +272,8 @@
   
 </section>
 
-<section class="slide" id="s-rccsteps" data-time="80" data-title="From marker profiles to blood–tumor comparisons">
-  <h1>From marker profiles <em>to blood–tumor comparisons</em></h1>
+<section class="slide" id="s-rccsteps" data-time="95" data-title="High-dimensional clustering resolves blood–tumor T-cell shifts">
+  <h1>High-dimensional clustering resolves <em>blood–tumor T-cell shifts</em></h1>
   <div class="body" style="flex-direction:column;gap:8px;margin-top:22px">
     <canvas id="rs-cv" width="3424" height="1500" style="width:1712px;height:750px"></canvas>
     <div class="rs-leg" data-step="1"><span><i style="background:#93c5fd"></i>CD8 naive / central memory</span><span><i style="background:#0891b2"></i>CD8 effector</span><span><i style="background:#67e8f9"></i>CD8 effector memory</span><span><i style="background:#86efac"></i>CD8 resident</span><span><i style="background:#7c3aed"></i>CD8 resident, exhausted</span><span><i style="background:#fde68a"></i>CD4 naive / central memory</span><span><i style="background:#f97316"></i>CD4 cytotoxic</span><span><i style="background:#fdba74"></i>CD4 memory</span><span><i style="background:#a3a3a3"></i>CD4 resident</span><span><i style="background:#db2777"></i>CD4 regulatory (Treg)</span></div>
@@ -287,8 +287,8 @@
 
 
 
-<section class="slide guided-figure" id="s-figure" data-time="70" data-title="From CD8 analysis to a publication figure" data-guided-figure data-assistant-demo>
-  <h1>From CD8 analysis <em>to a publication figure</em></h1>
+<section class="slide guided-figure" id="s-figure" data-time="80" data-title="Linked CD8 panels remain traceable to analysis outputs" data-guided-figure data-assistant-demo>
+  <h1>Linked CD8 panels remain <em>traceable to analysis outputs</em></h1>
   <div class="body linked-figure-body">
     <div class="linked-figure-wrap" id="fig-map" data-panel-bounds="[[4,4,623,397],[643,4,653,397],[4,408,623,315],[643,408,653,315]]">
       <img class="linked-figure-image" src="assets/img/cd8-linked-figure.svg?v=20261120-sourcesans" width="1300" height="748" alt="Four views of CD8 T cells from paired blood and tumor. A, UMAP by tissue. B, PD-1 by TIM-3 with a common arcsinh display with decade labels. C, phenotype medians. D, stacked bars comparing CD8 phenotypes in blood and tumor." draggable="false">
@@ -351,8 +351,8 @@
   <div class="foot"><span class="src"></span><span class="num"></span></div>
 </section>
 
-<section class="slide" id="s-deps" data-time="60" data-title="Recomputing only the steps affected by a change">
-  <h1>Recomputing only the steps <em>affected by a change</em></h1>
+<section class="slide" id="s-deps" data-time="70" data-title="Dependency tracking avoids stale outputs and redundant runs">
+  <h1>Dependency tracking avoids <em>stale outputs and redundant runs</em></h1>
   <div class="body" style="gap:40px;align-items:flex-start;margin-top:30px">
     <div class="tour">
       <div class="tour-screen"><span class="tag blue tour-badge">FlowCV · real screens</span>
@@ -393,8 +393,8 @@
 
 
 
-<section class="slide" id="s-rccres" data-time="90" data-title="CD8 T-cell phenotypes vary across renal tumors">
-  <h1>CD8 T-cell phenotypes vary <em>across renal tumors</em></h1>
+<section class="slide" id="s-rccres" data-time="110" data-title="Tumor CD8 exhausted-to-progenitor ratios vary by patient">
+  <h1>Tumor CD8 exhausted-to-progenitor ratios <em>vary by patient</em></h1>
   <div class="body" style="gap:40px;margin-top:22px;align-items:flex-start">
     <canvas id="rp-path" width="2440" height="1440" style="width:1220px;height:720px"></canvas>
     <div class="col grow" style="gap:16px;padding-top:24px">
@@ -409,8 +409,8 @@
 </section>
 
 
-<section class="slide" id="s-traj-all" data-time="55" data-title="Four inferred trajectories connect CD8 T-cell phenotypes">
-  <h1>Four inferred trajectories connect <em>CD8 T-cell phenotypes</em></h1>
+<section class="slide" id="s-traj-all" data-time="70" data-title="Four inferred trajectories organize blood and tumor CD8 states">
+  <h1>Four inferred trajectories organize <em>blood and tumor CD8 states</em></h1>
   <div class="body" style="gap:40px;margin-top:22px;align-items:flex-start">
     <div class="col" style="gap:10px">
       <div class="tj-map-panel">
@@ -428,7 +428,7 @@
 </section>
 
 
-<section class="slide dark" id="s-ctend" data-time="25" data-title="A phenotypic map of blood and tumor CD8 T cells">
+<section class="slide dark" id="s-ctend" data-time="55" data-title="Annotated phenotypic map of blood and tumor CD8 T cells">
   <canvas id="ctend3d" width="3840" height="2160" style="width:1920px;height:1080px"></canvas>
   <div class="ct-panel" data-clickable>
     <div class="ct-modes" role="group" aria-label="Color cells by">
@@ -446,7 +446,7 @@
       <div class="ct-traj-list"></div>
     </div>
   </div>
-  <div class="ct-head"><h1>A phenotypic map of <em>blood and tumor CD8 T cells</em></h1></div>
+  <div class="ct-head"><h1>Annotated phenotypic map of <em>blood and tumor CD8 T cells</em></h1></div>
   <div class="foot"><span class="src"></span><span class="num"></span></div>
   
 </section>
@@ -456,7 +456,7 @@
 
 
 
-<section class="slide" id="s-access" data-time="45" data-title="FlowCV access and deployment options">
+<section class="slide" id="s-access" data-time="50" data-title="FlowCV access and deployment options">
   <h1>FlowCV access <em>and deployment options</em></h1>
   <div class="body acc3">
     <div class="acc3-main">
@@ -484,7 +484,7 @@
 </section>
 
 
-<section class="slide global-conclusions" id="s-concl" data-time="55" data-title="FlowCV connects data, analytical decisions and results">
+<section class="slide global-conclusions" id="s-concl" data-time="70" data-title="FlowCV connects data, analytical decisions and results">
   <p class="kicker">Conclusions</p>
   <h1>FlowCV connects <em>data, analytical decisions and results</em></h1>
   <div class="body cc3">
@@ -508,7 +508,7 @@
   
 </section>
 
-<section class="slide acknowledgements" id="s-ack" data-time="20" data-title="Acknowledgements">
+<section class="slide acknowledgements" id="s-ack" data-time="40" data-title="Acknowledgements">
   <h1>Acknowledgements</h1>
   <div class="ack-main">
     <div class="ack-opening">
